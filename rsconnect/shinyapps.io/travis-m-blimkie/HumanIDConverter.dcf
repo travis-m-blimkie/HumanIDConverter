@@ -1,0 +1,12 @@
+name: HumanIDConverter
+title: HumanIDConverter
+username:
+account: travis-m-blimkie
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 999920
+bundleId: 2212123
+url: https://travis-m-blimkie.shinyapps.io/HumanIDConverter/
+when: 1562619477.37836
+asMultiple: FALSE
+asStatic: FALSE
