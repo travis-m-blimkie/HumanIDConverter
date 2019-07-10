@@ -51,7 +51,10 @@ ui <- fluidPage(
             tableOutput("Matched"),
 
             h3("Non-matching Genes:\n"),
-            tableOutput("NoMatch")
+            tableOutput("NoMatch"),
+
+            h3("LOC Genes:\n"),
+            tableOutput("LOC")
 
         )
 
@@ -73,13 +76,15 @@ server <- function(input, output) {
 
 
         # Remove any spaces, remove IDs containing a "."
-        clean_genes <- as.character(input_genes[,1]) %>%
+        clean_genes_1 <- as.character(input_genes[,1]) %>%
             str_replace_all(., pattern = "\\s", replacement = "") %>%
             str_subset(., pattern = "\\.", negate = T)
 
+        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC", value = T, invert = T)
+
 
         # Find matching entries
-        matching_genes <- filter_all(shiny_biomart_table, any_vars(. %in% clean_genes)) %>%
+        matching_genes <- filter_all(shiny_biomart_table, any_vars(. %in% clean_genes_2)) %>%
             distinct(hgnc_symbol, .keep_all = T)
 
 
@@ -99,23 +104,52 @@ server <- function(input, output) {
 
 
         # Remove any spaces, remove IDs containing a "."
-        clean_genes <- as.character(input_genes[,1]) %>%
+        clean_genes_1 <- as.character(input_genes[,1]) %>%
             str_replace_all(., pattern = "\\s", replacement = "") %>%
             str_subset(., pattern = "\\.", negate = T)
 
+        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC", value = T, invert = T)
+
 
         # Find matching entries
-        matching_genes <- filter_all(shiny_biomart_table, any_vars(. %in% clean_genes)) %>%
+        matching_genes <- filter_all(shiny_biomart_table, any_vars(. %in% clean_genes_2)) %>%
             distinct(hgnc_symbol, .keep_all = T)
 
         # Find input genes with no matches
         matched_chr <- unlist(matching_genes) %>% as.character()
         nonmatch_genes <- data.frame(
-            Genes = setdiff(clean_genes, matched_chr)
+            Genes = setdiff(clean_genes_2, matched_chr)
             )
 
         # Create and return output
         return(nonmatch_genes)
+    })
+
+
+    output$LOC <- renderTable({
+
+
+        req(input$file1)
+
+        input_genes <- read.csv(input$file1$datapath,
+                                header = input$header,
+                                sep = input$sep)
+
+
+        # Remove any spaces, remove IDs containing a "."
+        clean_genes_1 <- as.character(input_genes[,1]) %>%
+            str_replace_all(., pattern = "\\s", replacement = "") %>%
+            str_subset(., pattern = "\\.", negate = T)
+
+
+        # Get the LOC IDs
+        LOC_genes <- data.frame(
+            Genes = grep(clean_genes_1, pattern = "^LOC", value = T)
+        )
+
+        # Create and return output
+        return(LOC_genes)
+
     })
 
 }
