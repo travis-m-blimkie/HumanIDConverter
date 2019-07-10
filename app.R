@@ -62,8 +62,11 @@ ui <- fluidPage(
 )
 
 # Define server logic to read selected file -------------------------------
+
 server <- function(input, output) {
 
+
+    # Matching Genes ------------------------------------------------------
 
     output$Matched <- renderTable({
 
@@ -80,7 +83,7 @@ server <- function(input, output) {
             str_replace_all(., pattern = "\\s", replacement = "") %>%
             str_subset(., pattern = "\\.", negate = T)
 
-        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC", value = T, invert = T)
+        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC[0-9]+$", value = T, invert = T)
 
 
         # Find matching entries
@@ -92,6 +95,8 @@ server <- function(input, output) {
         return(matching_genes)
 
     })
+
+    # Non-matching Genes --------------------------------------------------
 
     output$NoMatch <- renderTable({
 
@@ -108,7 +113,7 @@ server <- function(input, output) {
             str_replace_all(., pattern = "\\s", replacement = "") %>%
             str_subset(., pattern = "\\.", negate = T)
 
-        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC", value = T, invert = T)
+        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC[0-9]+$", value = T, invert = T)
 
 
         # Find matching entries
@@ -125,6 +130,8 @@ server <- function(input, output) {
         return(nonmatch_genes)
     })
 
+
+    # LOC genes -----------------------------------------------------------
 
     output$LOC <- renderTable({
 
@@ -144,7 +151,7 @@ server <- function(input, output) {
 
         # Get the LOC IDs
         LOC_genes <- data.frame(
-            Genes = grep(clean_genes_1, pattern = "^LOC", value = T)
+            Genes = grep(clean_genes_1, pattern = "^LOC[0-9]+$", value = T)
         )
 
         # Create and return output
