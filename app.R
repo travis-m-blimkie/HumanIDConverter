@@ -8,6 +8,7 @@ shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
 
 
 # Define UI for data upload app -------------------------------------------
+
 ui <- fluidPage(
 
     # App title
@@ -35,11 +36,13 @@ ui <- fluidPage(
                                      Tab = "\t"),
                          selected = ","),
 
-           tags$hr(),
 
            # Input: Checkbox if file has header
-           checkboxInput("header", "File contains header", FALSE)
+           checkboxInput("header", "File contains header", FALSE),
 
+           tags$hr(),
+
+           downloadButton("Matched_dl", "Download Matched Genes")
 
         ),
 
@@ -61,6 +64,7 @@ ui <- fluidPage(
     )
 )
 
+
 # Define server logic to read selected file -------------------------------
 
 server <- function(input, output) {
@@ -68,8 +72,7 @@ server <- function(input, output) {
 
     # Matching Genes ------------------------------------------------------
 
-    output$Matched <- renderTable({
-
+    Matched <- reactive({
 
         req(input$file1)
 
@@ -93,14 +96,17 @@ server <- function(input, output) {
 
         # Create and return output
         return(matching_genes)
-
     })
+
+
+    output$Matched <- renderTable({
+        Matched()
+    })
+
 
     # Non-matching Genes --------------------------------------------------
 
-    output$NoMatch <- renderTable({
-
-
+    NoMatch <- reactive({
         req(input$file1)
 
         input_genes <- read.csv(input$file1$datapath,
@@ -124,18 +130,21 @@ server <- function(input, output) {
         matched_chr <- unlist(matching_genes) %>% as.character()
         nonmatch_genes <- data.frame(
             Genes = setdiff(clean_genes_2, matched_chr)
-            )
+        )
 
         # Create and return output
         return(nonmatch_genes)
     })
 
 
+    output$NoMatch <- renderTable({
+        NoMatch()
+    })
+
+
     # LOC genes -----------------------------------------------------------
 
-    output$LOC <- renderTable({
-
-
+    LOC <- reactive({
         req(input$file1)
 
         input_genes <- read.csv(input$file1$datapath,
@@ -156,11 +165,15 @@ server <- function(input, output) {
 
         # Create and return output
         return(LOC_genes)
+    })
 
+    output$LOC <- renderTable({
+        LOC()
     })
 
 }
 
 
 # Run the app -------------------------------------------------------------
+
 shinyApp(ui, server)
