@@ -42,7 +42,17 @@ ui <- fluidPage(
 
            tags$hr(),
 
-           downloadButton("Matched_dl", "Download Matched Genes")
+           downloadButton("Matched_dl", "Download Matched Genes"),
+
+           tags$br(),
+           tags$br(),
+
+           downloadButton("NoMatch_dl", "Download Non-Matching Genes"),
+
+           tags$br(),
+           tags$br(),
+
+           downloadButton("LOC_dl", "Download LOC Genes")
 
         ),
 
@@ -103,6 +113,13 @@ server <- function(input, output) {
         Matched()
     })
 
+    output$Matched_dl <- downloadHandler(
+        filename = "matched_genes.csv",
+        content = function(file) {
+            write.csv(Matched(), file, row.names = FALSE, quote = FALSE)
+        }
+    )
+
 
     # Non-matching Genes --------------------------------------------------
 
@@ -141,6 +158,13 @@ server <- function(input, output) {
         NoMatch()
     })
 
+    output$NoMatch_dl <- downloadHandler(
+        filename = "non-matching_genes.csv",
+        content = function(file) {
+            write.csv(NoMatch(), file, row.names = FALSE, quote = FALSE)
+        }
+    )
+
 
     # LOC genes -----------------------------------------------------------
 
@@ -170,6 +194,13 @@ server <- function(input, output) {
     output$LOC <- renderTable({
         LOC()
     })
+
+    output$LOC_dl <- downloadHandler(
+        filename = "LOC_genes.csv",
+        content = function(file) {
+            write.csv(LOC(), file, row.names = FALSE, quote = FALSE)
+        }
+    )
 
 }
 
