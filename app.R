@@ -2,6 +2,7 @@
 # Load libraries, global variables ----------------------------------------
 
 library(tidyverse)
+library(shinythemes)
 library(shiny)
 
 shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
@@ -9,7 +10,7 @@ shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
 
 # Define UI for data upload app -------------------------------------------
 
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("flatly"),
 
     # App title
     titlePanel(h1("Human Gene ID Converter")),
