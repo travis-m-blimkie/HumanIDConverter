@@ -40,19 +40,19 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
            # Input: Checkbox if file has header
            checkboxInput("header", "File contains header", FALSE),
-
            tags$hr(),
 
+           # Download matched genes
            downloadButton("Matched_dl", "Download Matched Genes"),
-
            tags$br(),
            tags$br(),
 
+           # Download non-matching genes
            downloadButton("NoMatch_dl", "Download Non-Matching Genes"),
-
            tags$br(),
            tags$br(),
 
+           # Download "LOC" genes
            downloadButton("LOC_dl", "Download LOC Genes")
 
         ),
@@ -60,13 +60,15 @@ ui <- fluidPage(theme = shinytheme("flatly"),
         # Main panel for displaying outputs
         mainPanel(
 
-            # Output: Data file
+            # Output for matching genes
             h3("Matching Genes:\n"),
             tableOutput("Matched"),
 
+            # Output for non-matching genes
             h3("Non-matching Genes:\n"),
             tableOutput("NoMatch"),
 
+            # Output for "LOC" genes
             h3("LOC Genes:\n"),
             tableOutput("LOC")
 
@@ -74,6 +76,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
     )
 )
+
+
 
 
 # Define server logic to read selected file -------------------------------
@@ -110,10 +114,12 @@ server <- function(input, output) {
     })
 
 
+    # Render output
     output$Matched <- renderTable({
         Matched()
     })
 
+    # Download output
     output$Matched_dl <- downloadHandler(
         filename = "matched_genes.csv",
         content = function(file) {
@@ -155,10 +161,12 @@ server <- function(input, output) {
     })
 
 
+    # Render output
     output$NoMatch <- renderTable({
         NoMatch()
     })
 
+    # Download output
     output$NoMatch_dl <- downloadHandler(
         filename = "non-matching_genes.csv",
         content = function(file) {
@@ -192,10 +200,12 @@ server <- function(input, output) {
         return(LOC_genes)
     })
 
+    # Render output
     output$LOC <- renderTable({
         LOC()
     })
 
+    # Download output
     output$LOC_dl <- downloadHandler(
         filename = "LOC_genes.csv",
         content = function(file) {
@@ -204,6 +214,8 @@ server <- function(input, output) {
     )
 
 }
+
+
 
 
 # Run the app -------------------------------------------------------------
