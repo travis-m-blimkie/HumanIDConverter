@@ -1,5 +1,5 @@
 
-# Load libraries, global variables ----------------------------------------
+# Load libraries and global variables -------------------------------------
 
 library(tidyverse)
 library(shinythemes)
@@ -10,7 +10,9 @@ shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
 
 # Define UI for data upload app -------------------------------------------
 
-ui <- fluidPage(theme = shinytheme("flatly"),
+ui <- fluidPage(
+
+    theme = shinytheme("flatly"),
 
     # App title
     titlePanel(h1("Human Gene ID Converter")),
@@ -22,7 +24,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
         sidebarPanel(
 
             # Input: Select a file
-            fileInput("file1", "Choose text file:",
+            fileInput("file1", paste0("Choose a text file to upload,",
+                                      " with one gene per line:"),
                       multiple = TRUE,
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
@@ -30,7 +33,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
             tags$hr(),
 
-           # Input: Select separator ----
+            # Select separator for input list (not really needed if one gene per
+            # line)
             radioButtons("sep", "Separator",
                          choices = c(Comma = ",",
                                      Semicolon = ";",
@@ -38,39 +42,39 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                          selected = ","),
 
 
-           # Input: Checkbox if file has header
-           checkboxInput("header", "File contains header", FALSE),
-           tags$hr(),
+            # Input: Checkbox if file has header
+            checkboxInput("header", "File contains header", FALSE),
+            tags$hr(),
 
-           # Download matched genes
-           downloadButton("Matched_dl", "Download Matched Genes"),
-           tags$br(),
-           tags$br(),
+            # Download matched genes
+            downloadButton("Matched_dl", "Download Matched Genes"),
+            tags$br(),
+            tags$br(),
 
-           # Download non-matching genes
-           downloadButton("NoMatch_dl", "Download Non-Matching Genes"),
-           tags$br(),
-           tags$br(),
+            # Download non-matching genes
+            downloadButton("NoMatch_dl", "Download Non-Matching Genes"),
+            tags$br(),
+            tags$br(),
 
-           # Download "LOC" genes
-           downloadButton("LOC_dl", "Download LOC Genes")
+            # Download "LOC" genes
+            downloadButton("LOC_dl", "Download LOC Genes")
 
         ),
 
-        # Main panel for displaying outputs
+        # Main panel for displaying results
         mainPanel(
 
             # Output for matching genes
             h3("Matching Genes:\n"),
-            tableOutput("Matched"),
+            tableOutput("matchedGenes"),
 
             # Output for non-matching genes
             h3("Non-matching Genes:\n"),
-            tableOutput("NoMatch"),
+            tableOutput("nonMatchedGenes"),
 
             # Output for "LOC" genes
             h3("LOC Genes:\n"),
-            tableOutput("LOC")
+            tableOutput("LOCGenes")
 
         )
 
@@ -80,138 +84,142 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
 
 
-# Define server logic to read selected file -------------------------------
+# Define server logic to read selected file -----------------------------------
 
 server <- function(input, output) {
 
 
-    # Matching Genes ------------------------------------------------------
+    # Read input genes from user ------------------------------------------
 
-    Matched <- reactive({
-
+    inputGenes <- reactive({
         req(input$file1)
 
-        input_genes <- read.csv(input$file1$datapath,
-                                header = input$header,
-                                sep = input$sep)
-
-
-        # Remove any spaces, remove IDs containing a "."
-        clean_genes_1 <- as.character(input_genes[,1]) %>%
-            str_replace_all(., pattern = "\\s", replacement = "") %>%
-            str_subset(., pattern = "\\.", negate = T)
-
-        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC[0-9]+$", value = T, invert = T)
-
-
-        # Find matching entries
-        matching_genes <- filter_all(shiny_biomart_table, any_vars(. %in% clean_genes_2)) %>%
-            distinct(hgnc_symbol, .keep_all = T)
-
-
-        # Create and return output
-        return(matching_genes)
+        read.csv(input$file1$datapath,
+                 header = input$header,
+                 sep = input$sep)
     })
 
 
-    # Render output
-    output$Matched <- renderTable({
-        Matched()
+    # Notification for successful upload ----------------------------------
+
+    observeEvent(input$file1, {
+        showNotification("File successfully uploaded!", type = "message")
     })
 
-    # Download output
-    output$Matched_dl <- downloadHandler(
-        filename = "matched_genes.csv",
+
+    # Clean input genes ---------------------------------------------------
+
+    # Remove leading or trailing spaces, and remove genes containing a "."
+    cleanGenes_1 <- reactive({
+        req(inputGenes)
+
+        inputGenes()[, 1] %>%
+            as.character() %>%
+            str_trim(., ) %>%
+            str_subset(., pattern = "\\.", negate = TRUE)
+    })
+
+
+    # Remove genes containing LOC -----------------------------------------
+
+    cleanGenes_2 <- reactive({
+        req(cleanGenes_1)
+
+        grep(cleanGenes_1(),
+             pattern = "^LOC[0-9]+$",
+             value = TRUE,
+             invert = TRUE
+             )
+    })
+
+
+    # Look for matching entries -------------------------------------------
+
+    matchedGenes <- reactive({
+        req(cleanGenes_2)
+
+        shiny_biomart_table %>%
+            filter_all(., any_vars(. %in% cleanGenes_2())) %>%
+            distinct(hgnc_symbol, .keep_all = TRUE) %>%
+            arrange(hgnc_symbol) %>%
+            rename(
+                "HGNC" = hgnc_symbol,
+                "UniProt" = uniprot_gn_id,
+                "Entrez" = entrezgene_id,
+                "Ensembl" = ensembl_gene_id
+            )
+    })
+
+
+    # Find genes in original list with no matches -------------------------
+
+    nonMatchedGenes <- reactive({
+        req(cleanGenes_2, matchedGenes)
+
+        myMatches <- unlist(matchedGenes()) %>% as.character()
+        noMatches <- data.frame(Genes = setdiff(cleanGenes_2(), myMatches))
+
+        return(noMatches)
+    })
+
+
+    # Grab genes starting with LOC ----------------------------------------
+
+    LOCGenes <- reactive({
+        req(cleanGenes_1)
+
+        LOCs <- grep(cleanGenes_1(),
+                     pattern = "^LOC[0-9]+$",
+                     value = TRUE)
+
+        data.frame(Genes = LOCs)
+    })
+
+
+    # Display outputs ---------------------------------------------------------
+
+    # Matching Genes
+    output$matchedGenes <- renderTable(
+        {matchedGenes()},
+        striped = TRUE
+        )
+
+    # Genes without a match
+    output$nonMatchedGenes <- renderTable({
+        nonMatchedGenes()
+    },
+    striped = TRUE)
+
+    # LOC genes which were excluded
+    output$LOCGenes <- renderTable({
+        LOCGenes()
+    },
+    striped = TRUE)
+
+
+    # Download links ------------------------------------------------------
+    output$matchedGenes_dl <- downloadHandler(
+        filename = "matching_genes.csv",
         content = function(file) {
-            write.csv(Matched(), file, row.names = FALSE, quote = FALSE)
+            write.csv(matchedGenes(), file, row.names = FALSE, quote = FALSE)
         }
     )
 
-
-    # Non-matching Genes --------------------------------------------------
-
-    NoMatch <- reactive({
-        req(input$file1)
-
-        input_genes <- read.csv(input$file1$datapath,
-                                header = input$header,
-                                sep = input$sep)
-
-
-        # Remove any spaces, remove IDs containing a "."
-        clean_genes_1 <- as.character(input_genes[,1]) %>%
-            str_replace_all(., pattern = "\\s", replacement = "") %>%
-            str_subset(., pattern = "\\.", negate = T)
-
-        clean_genes_2 <- grep(clean_genes_1, pattern = "^LOC[0-9]+$", value = T, invert = T)
-
-
-        # Find matching entries
-        matching_genes <- filter_all(shiny_biomart_table, any_vars(. %in% clean_genes_2)) %>%
-            distinct(hgnc_symbol, .keep_all = T)
-
-        # Find input genes with no matches
-        matched_chr <- unlist(matching_genes) %>% as.character()
-        nonmatch_genes <- data.frame(
-            Genes = setdiff(clean_genes_2, matched_chr)
-        )
-
-        # Create and return output
-        return(nonmatch_genes)
-    })
-
-
-    # Render output
-    output$NoMatch <- renderTable({
-        NoMatch()
-    })
-
-    # Download output
-    output$NoMatch_dl <- downloadHandler(
+    output$nonMatchedGenes_dl <- downloadHandler(
         filename = "non-matching_genes.csv",
         content = function(file) {
-            write.csv(NoMatch(), file, row.names = FALSE, quote = FALSE)
+            write.csv(nonMatchedGenes(), file, row.names = FALSE, quote = FALSE)
         }
     )
 
-
-    # LOC genes -----------------------------------------------------------
-
-    LOC <- reactive({
-        req(input$file1)
-
-        input_genes <- read.csv(input$file1$datapath,
-                                header = input$header,
-                                sep = input$sep)
-
-
-        # Remove any spaces, remove IDs containing a "."
-        clean_genes_1 <- as.character(input_genes[,1]) %>%
-            str_replace_all(., pattern = "\\s", replacement = "") %>%
-            str_subset(., pattern = "\\.", negate = T)
-
-
-        # Get the LOC IDs
-        LOC_genes <- data.frame(
-            Genes = grep(clean_genes_1, pattern = "^LOC[0-9]+$", value = T)
-        )
-
-        # Create and return output
-        return(LOC_genes)
-    })
-
-    # Render output
-    output$LOC <- renderTable({
-        LOC()
-    })
-
-    # Download output
-    output$LOC_dl <- downloadHandler(
-        filename = "LOC_genes.csv",
+    output$LOCGenes_dl <- downloadHandler(
+        filename = "loc_genes.csv",
         content = function(file) {
-            write.csv(LOC(), file, row.names = FALSE, quote = FALSE)
+            write.csv(LOCGenes(), file, row.names = FALSE, quote = FALSE)
         }
     )
+
+
 
 }
 
