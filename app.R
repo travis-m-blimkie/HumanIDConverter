@@ -4,6 +4,7 @@
 library(shinythemes)
 library(shinyjs)
 library(shiny)
+library(DT)
 library(tidyverse)
 
 shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
@@ -13,7 +14,14 @@ shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
 
 ui <- fluidPage(
 
+    # Set title that shows in the browser
+    title = "Human ID Converter",
+
+
+    # Set theme
     theme = shinytheme("flatly"),
+
+    # Enable shinyjs usage
     shinyjs::useShinyjs(),
 
     # App title
@@ -68,31 +76,15 @@ ui <- fluidPage(
             tags$hr(),
 
             # Download matched genes
-            disabled(downloadButton(
-                "Matched_dl",
-                "Download Matched Genes",
-                style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
-            )),
+            uiOutput("Matched_btn"),
 
-            tags$br(),
-            tags$br(),
 
             # Download non-matching genes
-            disabled(downloadButton(
-                "NoMatch_dl",
-                "Download Non-Matching Genes",
-                style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
-            )),
+            uiOutput("NonMatched_btn"),
 
-            tags$br(),
-            tags$br(),
 
             # Download "LOC" genes
-            disabled(downloadButton(
-                "LOC_dl",
-                "Download LOC Genes",
-                style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
-            ))
+            uiOutput("LOCGenes_btn")
 
         ),
 
@@ -100,16 +92,16 @@ ui <- fluidPage(
         mainPanel(
 
             # Output for matching genes
-            h3("Matching Genes:\n"),
-            tableOutput("matchedGenes"),
+            h3("Your matching genes will be displayed below:"),
+            DT::dataTableOutput("matchedGenes"),
 
             # Output for non-matching genes
-            h3("Non-matching Genes:\n"),
-            tableOutput("nonMatchedGenes"),
+            uiOutput("NonMatchingGenes_tbl"),
 
             # Output for "LOC" genes
-            h3("LOC Genes:\n"),
-            tableOutput("LOCGenes")
+            uiOutput("LOCGenes_tbl"),
+
+            tags$hr()
 
         )
 
@@ -137,13 +129,14 @@ server <- function(input, output) {
 
     # Notification for successful upload ----------------------------------
 
-    observeEvent(input$file1, {
-        showNotification("File successfully uploaded!", type = "message")
-    })
+    # observeEvent(input$file1, {
+    #     showNotification("File successfully uploaded!", type = "message")
+    # })
 
+    # Start of main server code -------------------------------------------
     observeEvent(input$search, {
 
-        # Clean input genes ---------------------------------------------------
+        # Clean input genes -----------------------------------------------
 
         # Remove leading or trailing spaces, and remove genes containing a "."
         cleanGenes_1 <- reactive({
@@ -156,7 +149,7 @@ server <- function(input, output) {
         })
 
 
-        # Remove genes containing LOC -----------------------------------------
+        # Remove genes containing LOC -------------------------------------
 
         cleanGenes_2 <- reactive({
             req(cleanGenes_1)
@@ -169,7 +162,7 @@ server <- function(input, output) {
         })
 
 
-        # Look for matching entries -------------------------------------------
+        # Look for matching entries ---------------------------------------
 
         matchedGenes <- reactive({
             req(cleanGenes_2)
@@ -187,7 +180,7 @@ server <- function(input, output) {
         })
 
 
-        # Find genes in original list with no matches -------------------------
+        # Find genes in original list with no matches ---------------------
 
         nonMatchedGenes <- reactive({
             req(cleanGenes_2, matchedGenes)
@@ -199,7 +192,7 @@ server <- function(input, output) {
         })
 
 
-        # Grab genes starting with LOC ----------------------------------------
+        # Grab genes starting with LOC ------------------------------------
 
         LOCGenes <- reactive({
             req(cleanGenes_1)
@@ -212,31 +205,77 @@ server <- function(input, output) {
         })
 
 
-        # Display outputs ---------------------------------------------------------
+        # Display outputs -------------------------------------------------
 
         # Matching Genes
-        output$matchedGenes <- renderTable({
+        output$matchedGenes <- DT::renderDataTable({
             isolate(matchedGenes())
-        },
-        striped = TRUE
+        }, options = list(searching = FALSE,
+                           scrollX = "100%",
+                           scrollY = "250px",
+                           scrollCollapse = TRUE,
+                           paging = FALSE),
+        rownames = FALSE
         )
 
         # Genes without a match
-        output$nonMatchedGenes <- renderTable({
+        output$nonMatchedGenes_DT <- DT::renderDataTable({
             isolate(nonMatchedGenes())
-        },
-        striped = TRUE)
+        }, options = list(searching = FALSE,
+                          scrollX = "100%",
+                          scrollY = "250px",
+                          scrollCollapse = TRUE,
+                          paging = FALSE),
+        rownames = FALSE
+        )
+
+        # Rendering the non-matched genes if present
+        output$NonMatchingGenes_tbl <- renderUI({
+            isolate(nonMatchedGenes())
+
+            if (nrow(nonMatchedGenes()) == 0) {
+                return(NULL)
+            } else {
+                return(tagList(
+                    tags$hr(),
+
+                    tags$h3("These genes had no matches in our database:"),
+                    DT::dataTableOutput("nonMatchedGenes_DT")
+                ))
+            }
+        })
 
         # LOC genes which were excluded
-        output$LOCGenes <- renderTable({
+        output$LOCGenes_DT <- DT::renderDataTable({
             isolate(LOCGenes())
-        },
-        striped = TRUE)
+        }, options = list(searching = FALSE,
+                          scrollX = "100%",
+                          scrollY = "250px",
+                          scrollCollapse = TRUE,
+                          paging = FALSE),
+        rownames = FALSE
+        )
+
+        # Rendering the LOC genes if present
+        output$LOCGenes_tbl <- renderUI({
+            isolate(LOCGenes())
+
+            if (nrow(LOCGenes()) == 0) {
+                return(NULL)
+            } else {
+                return(tagList(
+                    tags$hr(),
+
+                    tags$h3("The following LOC genes were detected:"),
+                    DT::dataTableOutput("LOCGenes_DT")
+                ))
+            }
+        })
 
 
-        # Download links ------------------------------------------------------
+        # Download links --------------------------------------------------
 
-        enable("Matched_dl")
+        # First for the matched genes
         output$Matched_dl <- downloadHandler(
             filename = "matching_genes.csv",
             content = function(file) {
@@ -244,7 +283,23 @@ server <- function(input, output) {
             }
         )
 
-        enable("NoMatch_dl")
+        output$Matched_btn <- renderUI({
+
+            if(nrow(matchedGenes()) != 0) {
+                tagList(
+                    downloadButton(
+                        "Matched_dl",
+                        "Download Matched Genes",
+                        style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
+                    ),
+                    tags$br(),
+                    tags$br()
+                )
+            }
+        })
+
+
+        # Next for non-matching genes
         output$NoMatch_dl <- downloadHandler(
             filename = "non-matching_genes.csv",
             content = function(file) {
@@ -252,13 +307,40 @@ server <- function(input, output) {
             }
         )
 
-        enable("LOC_dl")
+        output$NonMatched_btn <- renderUI({
+            if (nrow(nonMatchedGenes()) != 0) {
+                tagList(
+                    downloadButton(
+                        "NoMatch_dl",
+                        "Download Non-Matching Genes",
+                        style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
+                    ),
+                    tags$br(),
+                    tags$br()
+                )
+            }
+        })
+
+
+        # Finally for LOC genes
         output$LOC_dl <- downloadHandler(
             filename = "loc_genes.csv",
             content = function(file) {
                 write.csv(LOCGenes(), file, row.names = FALSE, quote = FALSE)
             }
         )
+
+        output$LOCGenes_btn <- renderUI({
+            if (nrow(LOCGenes()) != 0) {
+                tagList(
+                    downloadButton(
+                        "LOC_dl",
+                        "Download LOC Genes",
+                        style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
+                    )
+                )
+            }
+        })
 
     })
 
