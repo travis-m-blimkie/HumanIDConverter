@@ -9,6 +9,17 @@ library(tidyverse)
 
 shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
 
+# Colours that match with the Yeti theme:
+#     --blue: #008cba;
+#     --purple: #6f42c1;
+#     --pink: #e83e8c;
+#     --red: #F04124;
+#     --orange: #fd7e14;
+#     --yellow: #E99002;
+#     --green: #43ac6a;
+#     --teal: #20c997;
+#     --cyan: #5bc0de;
+
 
 # Define UI for data upload app -------------------------------------------
 
@@ -17,9 +28,8 @@ ui <- fluidPage(
     # Set title that shows in the browser
     title = "Human ID Converter",
 
-
     # Set theme
-    theme = shinytheme("flatly"),
+    theme = shinytheme("yeti"),
 
     # Enable shinyjs usage
     shinyjs::useShinyjs(),
@@ -34,12 +44,16 @@ ui <- fluidPage(
         sidebarPanel(
 
             # Input: Select a file
-            fileInput("file1", paste0("Choose a text file to upload,",
-                                      " with one gene per line:"),
-                      multiple = TRUE,
-                      accept = c("text/csv",
-                                 "text/comma-separated-values,text/plain",
-                                 ".csv")),
+            fileInput(
+                placeholder = " Please select a file...",
+                "file1",
+                paste0("Choose a text file to upload,",
+                       " with one gene per line:"),
+                multiple = TRUE,
+                accept = c("text/csv",
+                           "text/comma-separated-values,text/plain",
+                           ".csv")
+            ),
 
             tags$hr(),
 
@@ -70,7 +84,7 @@ ui <- fluidPage(
                 inputId = "search",
                 label   = "Search",
                 icon    = icon("search"),
-                style   = "color: #fff; background-color: #18bc9c; border-color: #18bc9c; width: 130px"
+                style   = "width: 130px; background-color: #008cba; border-color: #008cba; color: #ffffff"
             ),
 
             tags$hr(),
@@ -212,7 +226,7 @@ server <- function(input, output) {
             isolate(matchedGenes())
         }, options = list(searching = FALSE,
                            scrollX = "100%",
-                           scrollY = "250px",
+                           scrollY = "400px",
                            scrollCollapse = TRUE,
                            paging = FALSE),
         rownames = FALSE
@@ -289,8 +303,8 @@ server <- function(input, output) {
                 tagList(
                     downloadButton(
                         "Matched_dl",
-                        "Download Matched Genes",
-                        style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
+                        "Matched Genes",
+                        style = "width: 200px"
                     ),
                     tags$br(),
                     tags$br()
@@ -312,8 +326,8 @@ server <- function(input, output) {
                 tagList(
                     downloadButton(
                         "NoMatch_dl",
-                        "Download Non-Matching Genes",
-                        style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
+                        "Non-Matching Genes",
+                        style = "width: 200px"
                     ),
                     tags$br(),
                     tags$br()
@@ -335,8 +349,8 @@ server <- function(input, output) {
                 tagList(
                     downloadButton(
                         "LOC_dl",
-                        "Download LOC Genes",
-                        style = "width: 260px; background-color: #2c3e50; border-color: #2c3e50"
+                        "LOC Genes",
+                        style = "width: 200px"
                     )
                 )
             }
