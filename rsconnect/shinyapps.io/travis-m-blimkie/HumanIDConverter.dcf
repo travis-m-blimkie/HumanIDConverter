@@ -5,9 +5,9 @@ account: travis-m-blimkie
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 999920
-bundleId: 2265660
+bundleId: 2412333
 url: https://travis-m-blimkie.shinyapps.io/HumanIDConverter/
-when: 1564096235.90972
+when: 1568401204.97618
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: README.html|README.md|example_data/shiny_app_test.csv|example_data/shiny_app_test2.csv|example_data/shiny_app_test3.csv|example_data/shiny_app_test4.csv|www/humanidconverter.png
