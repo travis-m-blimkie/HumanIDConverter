@@ -45,7 +45,7 @@ ui <- fluidPage(
 
             # Input: Select a file
             fileInput(
-                placeholder = " Please select a file...",
+                placeholder = " Please select a file",
                 "file1",
                 paste0("Choose a text file to upload,",
                        " with one gene per line:"),
@@ -73,13 +73,13 @@ ui <- fluidPage(
 
             tags$p(div(HTML(
                 "Once you're genes have been successfully uploaded, press the",
-                "<b>Search</b> button to retreive your mappings."
+                "<b>Search</b> button to retreive your mappings and download ",
+                "the results."
             ))),
 
             tags$hr(),
 
-            # Button which triggers results to display. "background-color"
-            # defines the colour of the button (default #337ab7)
+            # Search button which triggers results to display
             actionButton(
                 inputId = "search",
                 label   = "Search",
@@ -88,6 +88,9 @@ ui <- fluidPage(
             ),
 
             tags$hr(),
+
+            # All the buttons below (Matched, NonMatched, LOCGenes) are created
+            # with uiOutput() and renderUI() for greater control.
 
             # Download matched genes
             uiOutput("Matched_btn"),
@@ -105,14 +108,16 @@ ui <- fluidPage(
         # Main panel for displaying results
         mainPanel(
 
-            # Output for matching genes
+            # Output for matching genes, just rendered plainly since this will
+            # (presumably) always contain something
             h3("Your matching genes will be displayed below:"),
             DT::dataTableOutput("matchedGenes"),
 
-            # Output for non-matching genes
+            # Output for non-matching genes, using uiOutput() and renderUI() so
+            # it only displays when populated
             uiOutput("NonMatchingGenes_tbl"),
 
-            # Output for "LOC" genes
+            # Output for "LOC" genes, same as NonMatchingGenes_tbl
             uiOutput("LOCGenes_tbl"),
 
             tags$hr()
@@ -221,7 +226,7 @@ server <- function(input, output) {
 
         # Display outputs -------------------------------------------------
 
-        # Matching Genes
+        # Matching Genes, rendered simply
         output$matchedGenes <- DT::renderDataTable({
             isolate(matchedGenes())
         }, options = list(searching = FALSE,
@@ -232,7 +237,7 @@ server <- function(input, output) {
         rownames = FALSE
         )
 
-        # Genes without a match
+        # Genes without a match, making use of renderUI()
         output$nonMatchedGenes_DT <- DT::renderDataTable({
             isolate(nonMatchedGenes())
         }, options = list(searching = FALSE,
@@ -287,9 +292,9 @@ server <- function(input, output) {
         })
 
 
-        # Download links --------------------------------------------------
+        # Download buttons ------------------------------------------------
 
-        # First for the matched genes
+        # First for the matched genes -------
         output$Matched_dl <- downloadHandler(
             filename = "matching_genes.csv",
             content = function(file) {
@@ -298,6 +303,7 @@ server <- function(input, output) {
         )
 
         output$Matched_btn <- renderUI({
+            isolate(matchedGenes())
 
             if(nrow(matchedGenes()) != 0) {
                 tagList(
@@ -313,7 +319,7 @@ server <- function(input, output) {
         })
 
 
-        # Next for non-matching genes
+        # Next for non-matching genes -------
         output$NoMatch_dl <- downloadHandler(
             filename = "non-matching_genes.csv",
             content = function(file) {
@@ -322,6 +328,8 @@ server <- function(input, output) {
         )
 
         output$NonMatched_btn <- renderUI({
+            isolate(nonMatchedGenes())
+
             if (nrow(nonMatchedGenes()) != 0) {
                 tagList(
                     downloadButton(
@@ -336,7 +344,7 @@ server <- function(input, output) {
         })
 
 
-        # Finally for LOC genes
+        # Finally for LOC genes ---------
         output$LOC_dl <- downloadHandler(
             filename = "loc_genes.csv",
             content = function(file) {
@@ -345,6 +353,8 @@ server <- function(input, output) {
         )
 
         output$LOCGenes_btn <- renderUI({
+            isolate(LOCGenes())
+
             if (nrow(LOCGenes()) != 0) {
                 tagList(
                     downloadButton(
