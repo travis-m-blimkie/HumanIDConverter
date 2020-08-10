@@ -1,0 +1,16 @@
+/* Custom CSS for DT colours */
+table.dataTable .sorting_1 {
+  background-color: white; border:1px lightgrey;
+}
+
+table.dataTable td {
+  background-color: white; border:1px lightgrey;
+}
+
+table.dataTable .odd {
+  background-color: #d9edf7; border:1px lightgrey;
+}
+
+table.dataTable .even {
+  background-color: #f7f7f7; border:1px lightgrey;
+}
