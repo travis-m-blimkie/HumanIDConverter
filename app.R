@@ -221,8 +221,6 @@ shinyApp(
             }
         )
 
-        # Render the download button, after the search button is clicked and
-        # only when there are some matching genes to return.
         observeEvent(input$search, {
             output$matchedBtn <- renderUI({
                 isolate(matchedGenes())
@@ -256,6 +254,7 @@ shinyApp(
             }
         )
 
+        # Now for the non-matching genes
         observeEvent(input$search, {
             output$nonMatchedBtn <- renderUI({
                 isolate(nonMatchedGenes())
