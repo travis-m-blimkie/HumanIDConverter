@@ -81,7 +81,9 @@ shinyApp(
                 tags$br(),
 
                 # Download button for matching genes
-                uiOutput(outputId = "matchedBtn")
+                uiOutput("matchedBtn"),
+
+                uiOutput("nonMatchedBtn")
             ),
 
             mainPanel = mainPanel(
@@ -89,7 +91,9 @@ shinyApp(
                 tags$br(),
 
                 # Output table for matching genes
-                uiOutput("matchedPanel")
+                uiOutput("matchedPanel"),
+
+                uiOutput("nonMatchedPanel")
             )
         )
     ),
@@ -130,6 +134,16 @@ shinyApp(
                 )
         })
 
+        # Get the genes that didn't have matches
+        nonMatchedGenes <- reactive({
+            req(matchedGenes())
+
+            myMatches <- unlist(matchedGenes()) %>% as.character()
+            noMatches <- data.frame(Genes = setdiff(inputGenes(), myMatches))
+
+            return(noMatches)
+        })
+
 
 
         # Output tables ---------------------------------------------------
@@ -148,7 +162,41 @@ shinyApp(
 
         observeEvent(input$search, {
             output$matchedPanel <- renderUI({
-                DT::dataTableOutput("matchedTable")
+                tagList(
+                    tags$h3("We found matches for the following genes:"),
+                    DT::dataTableOutput("matchedTable")
+                )
+            })
+        })
+
+
+        # Now for non-matching genes
+        output$nonMatchedTable <- DT::renderDataTable({
+            isolate(nonMatchedGenes())
+        },
+        rownames = FALSE,
+        options = list(
+            scrollX = "100%",
+            scrollY = "500px",
+            scrollCollapse = TRUE,
+            paging = FALSE
+        ))
+
+        observeEvent(input$search, {
+            output$nonMatchedPanel <- renderUI({
+                isolate(nonMatchedGenes)
+
+                if (nrow(nonMatchedGenes()) == 0) {
+                    return(NULL)
+                } else {
+                    return(tagList(
+                        tags$hr(),
+                        tags$br(),
+                        tags$h3("The following genes did not have a match:"),
+                        DT::dataTableOutput("nonMatchedTable"),
+                        tags$br()
+                    ))
+                }
             })
         })
 
@@ -176,6 +224,30 @@ shinyApp(
                         downloadButton(
                             outputId = "matchedDl",
                             label    = "Matched Genes"
+                        ),
+                        tags$br()
+                    )
+                }
+            })
+        })
+
+        output$nonMatchedDl <- downloadHandler(
+            filename = "non_matching_genes.csv",
+            content = function(file) {
+                readr::write_csv(nonMatchedGenes(), path = file)
+            }
+        )
+
+        observeEvent(input$search, {
+            output$nonMatchedBtn <- renderUI({
+                isolate(nonMatchedGenes())
+
+                if (nrow(nonMatchedGenes()) != 0) {
+                    tagList(
+                        tags$br(),
+                        downloadButton(
+                            outputId = "nonMatchedDl",
+                            label    = "Non-Matching Genes"
                         ),
                         tags$br()
                     )
