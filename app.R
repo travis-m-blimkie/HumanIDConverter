@@ -176,7 +176,7 @@ shinyApp(
                     return(NULL)
                 }
             })
-        })
+        }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
         # Now for non-matching genes
@@ -247,7 +247,7 @@ shinyApp(
                     )
                 }
             })
-        })
+        }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
         output$nonMatchedDl <- downloadHandler(
             filename = "non_matching_genes.csv",
@@ -281,6 +281,6 @@ shinyApp(
                     )
                 }
             })
-        })
+        }, ignoreNULL = TRUE, ignoreInit = TRUE)
     }
 )
