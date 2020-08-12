@@ -1,9 +1,6 @@
 
 # Load libraries and data -------------------------------------------------
 
-library(shinythemes)
-library(bootstraplib)
-library(shinyjs)
 library(shiny)
 library(DT)
 library(tidyverse)
@@ -23,13 +20,11 @@ shinyApp(
     ui = fluidPage(
 
         # Link to some custom CSS
-        # tags$head(tags$link(
-        #     rel = "stylesheet", type = "text/css", href = "css/user.css"
-        # )),
+        tags$head(tags$link(
+            rel = "stylesheet", type = "text/css", href = "css/user.css"
+        )),
 
         title = "Human ID Converter",
-
-        shinyjs::useShinyjs(),
 
         # Select the Bootswatch3 "Readable": https://bootswatch.com/3/readable/
         theme = "readablebootstrap.css",
@@ -37,10 +32,7 @@ shinyApp(
         # Customize the header for the app, with a theme-appropriate colour
         titlePanel(h1(
             "Human ID Converter",
-            style = paste0(
-                "background-color: #4582ec; color: white;",
-                "padding: 20px; margin: 0px; margin-bottom: 20px"
-            )
+            style = "background-color: #4582ec; color: white; padding: 20px"
         )),
 
         sidebarLayout(
@@ -52,7 +44,13 @@ shinyApp(
                     "names, and will search for these in a table and return ",
                     "any matches, facilitating mapping between ID types. ",
                     "Currently we support the following names/ID types: ",
-                    "HGNC symbols, Ensembl ID, Entrez IDs, and Uniprot IDs."
+                    "HGNC symbols, Ensembl ID, Entrez IDs, and Uniprot IDs. ",
+                    "Data for this app comes from Ensembl's ",
+                    tags$a(
+                        href = "http://ensemblgenomes.org/info/access/biomart",
+                        "BioMart.",
+                        .noWS = c("before", "after")
+                    )
                 ),
 
                 tags$p(
@@ -228,6 +226,7 @@ shinyApp(
                 if (nrow(matchedGenes()) != 0) {
                     tagList(
                         tags$br(),
+                        tags$hr(),
                         tags$p(
                             "Success! We found matches for some of your input ",
                             "genes. Check the table on the right to see which ",
@@ -262,6 +261,7 @@ shinyApp(
                 if (nrow(nonMatchedGenes()) != 0) {
                     tagList(
                         tags$br(),
+                        tags$hr(),
                         tags$p(
                             "It seems like we were unable to find matches for ",
                             "some of the genes you submitted. See the bottom ",
