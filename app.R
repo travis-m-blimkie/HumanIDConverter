@@ -23,9 +23,9 @@ shinyApp(
     ui = fluidPage(
 
         # Link to some custom CSS
-        tags$head(tags$link(
-            rel = "stylesheet", type = "text/css", href = "css/user.css"
-        )),
+        # tags$head(tags$link(
+        #     rel = "stylesheet", type = "text/css", href = "css/user.css"
+        # )),
 
         title = "Human ID Converter",
 
@@ -73,11 +73,14 @@ shinyApp(
 
                 # Search button, which is a trigger for lots of outputs/buttons
                 actionButton(
+                    class = "btn btn-primary",
+                    style = "float: right; padding-bottom: 10px",
                     inputId = "search",
                     label   = "Search",
                     icon    = icon("search")
                 ),
 
+                tags$br(),
                 tags$br(),
 
                 # Download button for matching genes
@@ -139,7 +142,7 @@ shinyApp(
             req(matchedGenes())
 
             myMatches <- unlist(matchedGenes()) %>% as.character()
-            noMatches <- data.frame(Genes = setdiff(inputGenes(), myMatches))
+            noMatches <- tibble("Input Genes" = setdiff(inputGenes(), myMatches))
 
             return(noMatches)
         })
@@ -162,10 +165,16 @@ shinyApp(
 
         observeEvent(input$search, {
             output$matchedPanel <- renderUI({
-                tagList(
-                    tags$h3("We found matches for the following genes:"),
-                    DT::dataTableOutput("matchedTable")
-                )
+                if (nrow(matchedGenes()) != 0) {
+                    return(
+                        tagList(
+                            tags$h3("We found matches for the following genes:"),
+                            DT::dataTableOutput("matchedTable")
+                        )
+                    )
+                } else {
+                    return(NULL)
+                }
             })
         })
 
@@ -184,7 +193,7 @@ shinyApp(
 
         observeEvent(input$search, {
             output$nonMatchedPanel <- renderUI({
-                isolate(nonMatchedGenes)
+                isolate(nonMatchedGenes())
 
                 if (nrow(nonMatchedGenes()) == 0) {
                     return(NULL)
@@ -198,7 +207,7 @@ shinyApp(
                     ))
                 }
             })
-        })
+        }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 
@@ -220,11 +229,20 @@ shinyApp(
 
                 if (nrow(matchedGenes()) != 0) {
                     tagList(
-                        tags$hr(),
+                        tags$br(),
+                        tags$p(
+                            "Success! We found matches for some of your input ",
+                            "genes. Check the table on the right to see which ",
+                            "genes we were able to identify. Click the button ",
+                            "below to download a CSV table of your result:"
+                        ),
                         downloadButton(
+                            class    = "btn btn-success",
+                            style    = "float: right; padding-bottom: 10px",
                             outputId = "matchedDl",
                             label    = "Matched Genes"
                         ),
+                        tags$br(),
                         tags$br()
                     )
                 }
@@ -245,10 +263,20 @@ shinyApp(
                 if (nrow(nonMatchedGenes()) != 0) {
                     tagList(
                         tags$br(),
+                        tags$p(
+                            "It seems like we were unable to find matches for ",
+                            "some of the genes you submitted. See the bottom ",
+                            "table on the right to check which genes were not ",
+                            "matched in our database. You may also download ",
+                            "these genes in a text file using the button below:"
+                        ),
                         downloadButton(
+                            class    = "btn btn-warning",
+                            style    = "float: right; padding-bottom: 10px",
                             outputId = "nonMatchedDl",
                             label    = "Non-Matching Genes"
                         ),
+                        tags$br(),
                         tags$br()
                     )
                 }
