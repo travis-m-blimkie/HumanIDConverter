@@ -27,7 +27,7 @@ shinyApp(
             rel = "stylesheet", type = "text/css", href = "css/user.css"
         )),
 
-        title = "Human Gene ID Converter",
+        title = "Human ID Converter",
 
         shinyjs::useShinyjs(),
 
@@ -36,7 +36,7 @@ shinyApp(
 
         # Customize the header for the app, with a theme-appropriate colour
         titlePanel(h1(
-            "Human Gene ID Converter",
+            "Human ID Converter",
             style = paste0(
                 "background-color: #4582ec; color: white;",
                 "padding: 20px; margin: 0px; margin-bottom: 20px"
