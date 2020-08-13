@@ -29,6 +29,8 @@ shinyApp(
         # Select the Bootswatch3 "Readable": https://bootswatch.com/3/readable/
         theme = "readablebootstrap.css",
 
+        # Header/title of the app, which has some custom tweaks applied in
+        # "user.css"
         tags$h1("Human ID Converter"),
 
         sidebarLayout(
@@ -90,10 +92,11 @@ shinyApp(
                 # Output table for matching genes
                 uiOutput("matchedPanel"),
 
+                # Output for non-matching genes
                 uiOutput("nonMatchedPanel")
             )
         )
-    ),
+    ), # Closes the ui() call
 
 
 
@@ -277,5 +280,5 @@ shinyApp(
                 }
             })
         }, ignoreNULL = TRUE, ignoreInit = TRUE)
-    }
+    } # Closes the server() call
 )
