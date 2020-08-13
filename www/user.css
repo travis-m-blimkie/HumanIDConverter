@@ -1,1 +1,21 @@
 /* empty */
+
+.container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+h1 {
+  background-color: #4582ec;
+  color: white;
+  padding: 20px;
+  margin-top: 0;
+}
+
+.col-sm-4 {
+  padding-left: 30px;
+}
+
+.row {
+  width: 100%;
+}

@@ -1262,7 +1262,8 @@ h1,
 }
 h2,
 .h2 {
-  font-size: 34px;
+  content: none;
+  /*font-size: 34px;*/
 }
 h3,
 .h3 {
@@ -1790,6 +1791,7 @@ pre code {
     width: 75%;
   }
   .col-sm-8 {
+    /*width: 65%;*/
     width: 66.66666667%;
   }
   .col-sm-7 {
@@ -1802,6 +1804,7 @@ pre code {
     width: 41.66666667%;
   }
   .col-sm-4 {
+    /*width: 32%;*/
     width: 33.33333333%;
   }
   .col-sm-3 {
@@ -6358,8 +6361,8 @@ button.close {
 .dl-horizontal dd:after,
 .container:before,
 .container:after,
-.container-fluid:before,
-.container-fluid:after,
+/*.container-fluid:before,*/
+/*.container-fluid:after,*/
 .row:before,
 .row:after,
 .form-horizontal .form-group:before,
@@ -6384,8 +6387,9 @@ button.close {
 .modal-header:after,
 .modal-footer:before,
 .modal-footer:after {
-  display: table;
-  content: " ";
+  /*display: table;*/
+  /*content: " ";*/
+  content: none;
 }
 .clearfix:after,
 .dl-horizontal dd:after,

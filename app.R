@@ -19,9 +19,9 @@ shinyApp(
 
     ui = fluidPage(
 
-        # Link to some custom CSS
+        # Link to some custom CSS tweaks
         tags$head(tags$link(
-            rel = "stylesheet", type = "text/css", href = "css/user.css"
+            rel = "stylesheet", type = "text/css", href = "user.css"
         )),
 
         title = "Human ID Converter",
@@ -29,11 +29,7 @@ shinyApp(
         # Select the Bootswatch3 "Readable": https://bootswatch.com/3/readable/
         theme = "readablebootstrap.css",
 
-        # Customize the header for the app, with a theme-appropriate colour
-        titlePanel(h1(
-            "Human ID Converter",
-            style = "background-color: #4582ec; color: white; padding: 20px"
-        )),
+        tags$h1("Human ID Converter"),
 
         sidebarLayout(
 
@@ -66,7 +62,7 @@ shinyApp(
                     inputId = "pastedInput",
                     label   = NULL,
                     placeholder = "Your genes here...",
-                    height  = 300
+                    height  = 200
                 ),
 
                 # Search button, which is a trigger for lots of outputs/buttons
