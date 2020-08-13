@@ -9,9 +9,12 @@
 }
 
 h1 {
-  background-color: #4582ec;
+  /* Link to coolors page to help pick an additional colour: */
+  /* https://coolors.co/318837-4582ec-5bc0de-f0ad4e-372554 */
+  background-color: #003249;
   color: white;
-  padding: 20px;
+  padding: 10px;
+  padding-left: 15px;
   margin-top: 0;
 }
 
