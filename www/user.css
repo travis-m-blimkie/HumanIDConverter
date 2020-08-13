@@ -1,4 +1,7 @@
-/* empty */
+
+/* The code in this first section is needed to make the header/title stretch */
+/* the whole width of the page, without excess padding on the top or the */
+/* sides of the screen. */
 
 .container-fluid {
   padding-left: 0;
@@ -16,6 +19,8 @@ h1 {
   padding-left: 30px;
 }
 
+/* This invisible element (height: 0) caused a horizontal scrollbar. Fixed by */
+/* setting the width to the screen size. */
 .row {
   width: 100%;
 }
