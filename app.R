@@ -1,11 +1,21 @@
 
 # Load libraries and data -------------------------------------------------
 
-library(shiny)
-library(DT)
-library(tidyverse)
+suppressPackageStartupMessages({
+    library(shiny)
+    library(DT)
+    library(tidyverse)
+})
 
 shiny_biomart_table <- readRDS("data/shiny_biomart_table_20200814.Rds")
+
+example_data <-
+    read_csv(
+        "example_data/shiny_app_test_data.csv",
+        col_names = "gene",
+        col_types = cols()
+    ) %>%
+    pull(1)
 
 
 
@@ -67,6 +77,14 @@ shinyApp(
                     height  = 200
                 ),
 
+                # Link to load example data, mostly to making testing easier
+                actionLink(
+                    inputId = "tryExample",
+                    label   = "Load Example Data",
+                    style   = "font-size: 110%"
+
+                ),
+
                 # Search button, which is a trigger for lots of outputs/buttons
                 actionButton(
                     class = "btn btn-primary",
@@ -107,6 +125,19 @@ shinyApp(
     server = function(input, output) {
 
         inputGenes <- reactiveVal()
+
+        # Load in example data when linked clicked
+        observeEvent(input$tryExample, {
+            inputGenes(example_data)
+
+            showNotification(
+                id = "exampleSuccess",
+                ui = "Example data successfully loaded.",
+                duration = 3,
+                closeButton = TRUE,
+                type = "message"
+            )
+        })
 
 
         # Take the user's input and clean it up

@@ -27,3 +27,9 @@ h1 {
 .row {
   width: 100%;
 }
+
+/* Customizing the notification */
+.shiny-notification-message {
+  color: white;
+  background-color: #003249;
+}
