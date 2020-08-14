@@ -47,29 +47,40 @@ shinyApp(
 
             sidebarPanel = sidebarPanel(
 
+                tags$h3("Hello!"),
+
                 tags$p(
-                    "Hello! This app allows you to input human gene IDs or ",
-                    "names, and will search for these in a table and return ",
-                    "any matches, facilitating mapping between ID types. ",
-                    "Currently we support the following names/ID types: ",
-                    "HGNC symbols, Ensembl ID, Entrez IDs, and Uniprot IDs. ",
-                    "Data for this app comes from Ensembl's ",
+                    "This app is designed to facilitate mapping between ",
+                    "different human gene identifiers by searching a large  ",
+                    "table with your input genes and returning any matches. ",
+                    "Each input can contain a mix of any of the supported ID ",
+                    "types: HGNC, Ensembl, Entrez, and UniProt."
+                ),
+
+                tags$p(
+                    "The data used for the mapping comes from Ensembl's ",
                     tags$a(
                         href = "http://ensemblgenomes.org/info/access/biomart",
                         "BioMart.",
-                        .noWS = c("before", "after")
+                        .noWS = "before"
+                    ),
+                    "If you run into any trouble, please open an issue at the ",
+                    tags$a(
+                        "Github page.",
+                        .noWS = c("before", "after"),
+                        href = "https://github.com/travis-m-blimkie/HumanIDConverter"
                     )
                 ),
 
                 tags$p(
-                    "To get started, paste your IDs or names into the field ",
+                    "To get started, paste your genes into the field ",
                     "below (one per line), and click the 'Search' button to ",
-                    "begin!"
+                    "get your results."
                 ),
 
                 tags$br(),
 
-                # User input box
+                # User input
                 textAreaInput(
                     inputId = "pastedInput",
                     label   = NULL,
@@ -77,7 +88,7 @@ shinyApp(
                     height  = 200
                 ),
 
-                # Link to load example data, mostly to making testing easier
+                # Link to load example data, primarily to making testing easier
                 actionLink(
                     inputId = "tryExample",
                     label   = "Load Example Data",
@@ -87,7 +98,7 @@ shinyApp(
 
                 # Search button, which is a trigger for lots of outputs/buttons
                 actionButton(
-                    class = "btn btn-primary",
+                    class = "btn-primary",
                     style = "float: right; padding-bottom: 10px",
                     inputId = "search",
                     label   = "Search",
@@ -101,7 +112,8 @@ shinyApp(
                 uiOutput("matchedBtn"),
 
                 uiOutput("nonMatchedBtn")
-            ),
+
+            ), # Closes sidebarPanel()
 
             mainPanel = mainPanel(
 
@@ -112,8 +124,11 @@ shinyApp(
 
                 # Output for non-matching genes
                 uiOutput("nonMatchedPanel")
-            )
-        )
+
+            ) # Closes mainPanel()
+
+        ) # Closes sidebarLayout()
+
     ), # Closes the ui() call
 
 
@@ -170,7 +185,10 @@ shinyApp(
             req(matchedGenes())
 
             myMatches <- unlist(matchedGenes()) %>% as.character()
-            noMatches <- tibble("Input Genes" = setdiff(inputGenes(), myMatches))
+            noMatches <- tibble(
+                "Input Genes" = setdiff(inputGenes(), myMatches)
+            ) %>%
+                arrange(1)
 
             return(noMatches)
         })
@@ -186,7 +204,7 @@ shinyApp(
         rownames = FALSE,
         options = list(
             scrollX = "100%",
-            scrollY = "500px",
+            scrollY = "250px",
             scrollCollapse = TRUE,
             paging = FALSE
         ))
@@ -207,6 +225,8 @@ shinyApp(
         }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
+
+
         # Now for non-matching genes
         output$nonMatchedTable <- DT::renderDataTable({
             isolate(nonMatchedGenes())
@@ -214,7 +234,7 @@ shinyApp(
         rownames = FALSE,
         options = list(
             scrollX = "100%",
-            scrollY = "500px",
+            scrollY = "250px",
             scrollCollapse = TRUE,
             paging = FALSE
         ))
@@ -239,6 +259,8 @@ shinyApp(
 
 
 
+
+
         # Download buttons ------------------------------------------------
 
         # First for the matched genes
@@ -258,10 +280,10 @@ shinyApp(
                         tags$br(),
                         tags$hr(),
                         tags$p(
-                            "Success! We found matches for some of your input ",
-                            "genes. Check the table on the right to see which ",
-                            "genes we were able to identify. Click the button ",
-                            "below to download a CSV table of your result:"
+                            "We successfully matched some of your input ",
+                            "genes. Check the table on the right to see the ",
+                            "results, and click the button below to download ",
+                            "them."
                         ),
                         downloadButton(
                             class    = "btn btn-success",
@@ -283,6 +305,9 @@ shinyApp(
             }
         )
 
+
+
+
         # Now for the non-matching genes
         observeEvent(input$search, {
             output$nonMatchedBtn <- renderUI({
@@ -293,11 +318,10 @@ shinyApp(
                         tags$br(),
                         tags$hr(),
                         tags$p(
-                            "It seems like we were unable to find matches for ",
-                            "some of the genes you submitted. See the bottom ",
-                            "table on the right to check which genes were not ",
-                            "matched in our database. You may also download ",
-                            "these genes in a text file using the button below:"
+                            "We were unable to find matches for some of your ",
+                            "genes. See the bottom table on the right for ",
+                            "which genes were not matched, and click the ",
+                            "button below to download them."
                         ),
                         downloadButton(
                             class    = "btn btn-warning",
@@ -311,5 +335,6 @@ shinyApp(
                 }
             })
         }, ignoreNULL = TRUE, ignoreInit = TRUE)
+
     } # Closes the server() call
 )
