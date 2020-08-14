@@ -5,7 +5,7 @@ library(shiny)
 library(DT)
 library(tidyverse)
 
-shiny_biomart_table <- readRDS("data/shiny_biomart_table.rds")
+shiny_biomart_table <- readRDS("data/shiny_biomart_table_20200814.Rds")
 
 
 
