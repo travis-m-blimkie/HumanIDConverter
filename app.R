@@ -7,15 +7,14 @@ suppressPackageStartupMessages({
     library(tidyverse)
 })
 
-shiny_biomart_table <- readRDS("data/shiny_biomart_table_20200814.Rds")
+# Make sure there is only one data file present, otherwise this will not work!
+shiny_biomart_table <- readRDS(list.files(
+    path = "data/",
+    pattern = "^shiny_biomart_table_[0-9]{8}.Rds$",
+    full.names = TRUE
+))
 
-example_data <-
-    read_csv(
-        "example_data/shiny_app_test_data.csv",
-        col_names = "gene",
-        col_types = cols()
-    ) %>%
-    pull(1)
+example_data <- read_lines("example_data/shiny_app_test_data.txt")
 
 
 
@@ -29,7 +28,7 @@ shinyApp(
 
     ui = fluidPage(
 
-        # Link to some custom CSS tweaks
+        # Link to some custom CSS
         tags$head(tags$link(
             rel = "stylesheet", type = "text/css", href = "user.css"
         )),
@@ -66,16 +65,17 @@ shinyApp(
                     tags$p(
                         "The data used for the mapping comes from Ensembl's ",
                         tags$a(
+                            "BioMart",
                             href = "http://ensemblgenomes.org/info/access/biomart",
-                            "BioMart.",
-                            .noWS = "before"
+                            .noWS = c("before", "after")
                         ),
-                        "If you run into any trouble, please open an issue at the ",
+                        ". If you run into any trouble, please open an issue at the ",
                         tags$a(
-                            "Github page.",
+                            "Github page",
+                            href = "https://github.com/travis-m-blimkie/HumanIDConverter",
                             .noWS = c("before", "after"),
-                            href = "https://github.com/travis-m-blimkie/HumanIDConverter"
-                        )
+                        ),
+                        "."
                     ),
 
                     tags$p(
@@ -120,7 +120,7 @@ shinyApp(
                     # Download button and some text for non-matching genes
                     uiOutput("nonMatchedBtn")
 
-                ), # Closes sidebarPanel()
+                ), # Closes side div/well
 
             ),
 
@@ -136,7 +136,7 @@ shinyApp(
                 # Output table of non-matching genes
                 uiOutput("nonMatchedPanel")
 
-            ) # Closes mainPanel()
+            ) # Closes main div
 
         ) # Closes sidebarLayout()
 
@@ -158,11 +158,13 @@ shinyApp(
 
             showNotification(
                 id = "exampleSuccess",
-                ui = "Example data successfully loaded! Click the 'Search' ",
-                "button to continue.",
+                ui = paste0(
+                    "Example data successfully loaded! Click the Search ",
+                    "button to continue."
+                ),
                 duration = 5,
                 closeButton = TRUE,
-                type = "message"
+                type     = "message"
             )
         })
 
@@ -218,7 +220,7 @@ shinyApp(
             scrollX = "100%",
             scrollY = "250px",
             scrollCollapse = TRUE,
-            paging = FALSE
+            paging  = FALSE
         ))
 
         observeEvent(input$search, {
