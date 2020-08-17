@@ -45,79 +45,89 @@ shinyApp(
 
         sidebarLayout(
 
-            sidebarPanel = sidebarPanel(
+            sidebarPanel = tags$div(
 
-                tags$h3("Hello!"),
+                class = "col-sm-4 manual-sidebar",
 
-                tags$p(HTML(
-                    "Welcome to <b>Human ID Converter</b>, an app designed to ",
-                    "facilitate mapping between different human gene ",
-                    "identifiers. It functions by searching a table ",
-                    "with your input genes and returning any matches. ",
-                    "Each input can contain a mix of any of the supported ID ",
-                    "types: HGNC, Ensembl, Entrez, and UniProt."
-                )),
+                tags$form(
+                    class = "well",
 
-                tags$p(
-                    "The data used for the mapping comes from Ensembl's ",
-                    tags$a(
-                        href = "http://ensemblgenomes.org/info/access/biomart",
-                        "BioMart.",
-                        .noWS = "before"
+                    tags$h3("Hello!"),
+
+                    tags$p(HTML(
+                        "Welcome to <b>Human ID Converter</b>, an app designed to ",
+                        "facilitate mapping between different human gene ",
+                        "identifiers. It functions by searching a table ",
+                        "with your input genes and returning any matches. ",
+                        "Each input can contain a mix of any of the supported ID ",
+                        "types: HGNC, Ensembl, Entrez, and UniProt."
+                    )),
+
+                    tags$p(
+                        "The data used for the mapping comes from Ensembl's ",
+                        tags$a(
+                            href = "http://ensemblgenomes.org/info/access/biomart",
+                            "BioMart.",
+                            .noWS = "before"
+                        ),
+                        "If you run into any trouble, please open an issue at the ",
+                        tags$a(
+                            "Github page.",
+                            .noWS = c("before", "after"),
+                            href = "https://github.com/travis-m-blimkie/HumanIDConverter"
+                        )
                     ),
-                    "If you run into any trouble, please open an issue at the ",
-                    tags$a(
-                        "Github page.",
-                        .noWS = c("before", "after"),
-                        href = "https://github.com/travis-m-blimkie/HumanIDConverter"
-                    )
-                ),
 
-                tags$p(
-                    "To get started, paste your genes into the field ",
-                    "below (one per line), and click the 'Search' button to ",
-                    "see your results."
-                ),
+                    tags$p(
+                        "To get started, paste your genes into the field ",
+                        "below (one per line), and click the 'Search' button to ",
+                        "see your results."
+                    ),
 
-                tags$br(),
+                    tags$br(),
 
-                # Field for user to input their genes
-                textAreaInput(
-                    inputId = "pastedInput",
-                    label   = NULL,
-                    placeholder = "Your genes here...",
-                    height  = 175
-                ),
+                    # Field for user to input their genes
+                    textAreaInput(
+                        inputId = "pastedInput",
+                        label   = NULL,
+                        placeholder = "Your genes here...",
+                        height  = 175
+                    ),
 
-                # Link to load example data, primarily to making testing easier
-                actionLink(
-                    inputId = "tryExample",
-                    label   = "Load Example Data",
-                    style   = "font-size: 110%"
+                    # Link to load example data, primarily to making testing easier
+                    actionLink(
+                        inputId = "tryExample",
+                        label   = "Load Example Data",
+                        style   = "font-size: 110%"
 
-                ),
+                    ),
 
-                # Search button, which is a trigger for lots of outputs/buttons
-                actionButton(
-                    class = "btn-primary",
-                    style = "float: right; padding-bottom: 10px",
-                    inputId = "search",
-                    label   = "Search",
-                    icon    = icon("search")
-                ),
+                    # Search button, which is a trigger for lots of outputs/buttons
+                    actionButton(
+                        class = "btn-primary",
+                        style = "float: right; padding-bottom: 10px",
+                        inputId = "search",
+                        label   = "Search",
+                        icon    = icon("search")
+                    ),
 
-                tags$br(),
-                tags$br(),
+                    tags$br(),
+                    tags$br(),
 
-                # Download button and some text for matching genes
-                uiOutput("matchedBtn"),
+                    # Download button and some text for matching genes
+                    uiOutput("matchedBtn"),
 
-                # Download button and some text for non-matching genes
-                uiOutput("nonMatchedBtn")
+                    # Download button and some text for non-matching genes
+                    uiOutput("nonMatchedBtn")
 
-            ), # Closes sidebarPanel()
+                ), # Closes sidebarPanel()
 
-            mainPanel = mainPanel(
+            ),
+
+            mainPanel = tags$div(
+
+                class = "col-sm-8",
+
                 tags$br(),
 
                 # Output table of matching genes
