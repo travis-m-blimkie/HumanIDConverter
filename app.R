@@ -81,12 +81,12 @@ shinyApp(
 
                 tags$br(),
 
-                # User input
+                # Field for user to input their genes
                 textAreaInput(
                     inputId = "pastedInput",
                     label   = NULL,
                     placeholder = "Your genes here...",
-                    height  = 200
+                    height  = 175
                 ),
 
                 # Link to load example data, primarily to making testing easier
@@ -109,21 +109,21 @@ shinyApp(
                 tags$br(),
                 tags$br(),
 
-                # Download button for matching genes
+                # Download button and some text for matching genes
                 uiOutput("matchedBtn"),
 
+                # Download button and some text for non-matching genes
                 uiOutput("nonMatchedBtn")
 
             ), # Closes sidebarPanel()
 
             mainPanel = mainPanel(
-
                 tags$br(),
 
-                # Output table for matching genes
+                # Output table of matching genes
                 uiOutput("matchedPanel"),
 
-                # Output for non-matching genes
+                # Output table of non-matching genes
                 uiOutput("nonMatchedPanel")
 
             ) # Closes mainPanel()
@@ -148,7 +148,8 @@ shinyApp(
 
             showNotification(
                 id = "exampleSuccess",
-                ui = "Example data successfully loaded.",
+                ui = "Example data successfully loaded! Click the 'Search' ",
+                "button to continue.",
                 duration = 5,
                 closeButton = TRUE,
                 type = "message"
@@ -278,7 +279,6 @@ shinyApp(
 
                 if (nrow(matchedGenes()) != 0) {
                     tagList(
-                        # tags$br(),
                         tags$hr(),
                         tags$p(
                             "We successfully matched some of your input ",
@@ -299,6 +299,10 @@ shinyApp(
             })
         }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
+
+
+
+        # Now for the non-matching genes
         output$nonMatchedDl <- downloadHandler(
             filename = "non_matching_genes.csv",
             content = function(file) {
@@ -306,17 +310,12 @@ shinyApp(
             }
         )
 
-
-
-
-        # Now for the non-matching genes
         observeEvent(input$search, {
             output$nonMatchedBtn <- renderUI({
                 isolate(nonMatchedGenes())
 
                 if (nrow(nonMatchedGenes()) != 0) {
                     tagList(
-                        # tags$br(),
                         tags$hr(),
                         tags$p(
                             "We were unable to find matches for some of your ",

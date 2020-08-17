@@ -24,6 +24,7 @@ h3 {
   padding-left: 30px;
 }
 
+
 /* This invisible element (height: 0) caused a horizontal scrollbar. Fixed by */
 /* setting the width to the screen size. */
 .row {
@@ -37,5 +38,5 @@ h3 {
 }
 
 
-/* Link to coolors page to help pick an additional colour: */
+/* Link to coolors page to help pick an additional colours: */
 /* https://coolors.co/318837-4582ec-5bc0de-f0ad4e-372554 */
