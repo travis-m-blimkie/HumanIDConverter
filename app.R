@@ -49,13 +49,14 @@ shinyApp(
 
                 tags$h3("Hello!"),
 
-                tags$p(
-                    "This app is designed to facilitate mapping between ",
-                    "different human gene identifiers by searching a large  ",
-                    "table with your input genes and returning any matches. ",
+                tags$p(HTML(
+                    "Welcome to <b>Human ID Converter</b>, an app designed to ",
+                    "facilitate mapping between different human gene ",
+                    "identifiers. It functions by searching a table ",
+                    "with your input genes and returning any matches. ",
                     "Each input can contain a mix of any of the supported ID ",
                     "types: HGNC, Ensembl, Entrez, and UniProt."
-                ),
+                )),
 
                 tags$p(
                     "The data used for the mapping comes from Ensembl's ",
@@ -75,7 +76,7 @@ shinyApp(
                 tags$p(
                     "To get started, paste your genes into the field ",
                     "below (one per line), and click the 'Search' button to ",
-                    "get your results."
+                    "see your results."
                 ),
 
                 tags$br(),
@@ -148,7 +149,7 @@ shinyApp(
             showNotification(
                 id = "exampleSuccess",
                 ui = "Example data successfully loaded.",
-                duration = 3,
+                duration = 5,
                 closeButton = TRUE,
                 type = "message"
             )
@@ -236,7 +237,7 @@ shinyApp(
             scrollX = "100%",
             scrollY = "250px",
             scrollCollapse = TRUE,
-            paging = FALSE
+            paging  = FALSE
         ))
 
         observeEvent(input$search, {
@@ -277,13 +278,13 @@ shinyApp(
 
                 if (nrow(matchedGenes()) != 0) {
                     tagList(
-                        tags$br(),
+                        # tags$br(),
                         tags$hr(),
                         tags$p(
                             "We successfully matched some of your input ",
                             "genes. Check the table on the right to see the ",
                             "results, and click the button below to download ",
-                            "them."
+                            "the result."
                         ),
                         downloadButton(
                             class    = "btn btn-success",
@@ -315,13 +316,12 @@ shinyApp(
 
                 if (nrow(nonMatchedGenes()) != 0) {
                     tagList(
-                        tags$br(),
+                        # tags$br(),
                         tags$hr(),
                         tags$p(
                             "We were unable to find matches for some of your ",
-                            "genes. See the bottom table on the right for ",
-                            "which genes were not matched, and click the ",
-                            "button below to download them."
+                            "genes, as shown in the bottom table on the right.",
+                            " Click the button below to download them."
                         ),
                         downloadButton(
                             class    = "btn btn-warning",
