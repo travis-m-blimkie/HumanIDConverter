@@ -14,6 +14,14 @@ biomart_table <- getBM(
 
 biomart_table[biomart_table == ""] <- NA
 
+biomart_table <- biomart_table %>%
+  select(
+    "HGNC"    = hgnc_symbol,
+    "Ensembl" = ensembl_gene_id,
+    "Entrez"  = entrezgene_id,
+    "UniProt" = uniprot_gn_id
+  )
+
 saveRDS(
   biomart_table,
   paste0(

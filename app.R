@@ -184,14 +184,8 @@ shinyApp(
 
             shiny_biomart_table %>%
                 filter_all(., any_vars(. %in% inputGenes())) %>%
-                distinct(hgnc_symbol, .keep_all = TRUE) %>%
-                arrange(hgnc_symbol) %>%
-                select(
-                    "HGNC"    = hgnc_symbol,
-                    "Ensembl" = ensembl_gene_id,
-                    "Entrez"  = entrezgene_id,
-                    "UniProt" = uniprot_gn_id
-                )
+                distinct(HGNC, .keep_all = TRUE) %>%
+                arrange(HGNC)
         })
 
         # Get the genes that didn't have matches
@@ -330,9 +324,9 @@ shinyApp(
                     tagList(
                         tags$hr(),
                         tags$p(
-                            "We were unable to find matches for some of your ",
-                            "genes, as shown in the bottom table on the right.",
-                            " Click the button below to download them."
+                            "We were unable to find matches for the genes ",
+                            "shown in the bottom table on the right. Click ",
+                            "the button below to download them."
                         ),
                         downloadButton(
                             class    = "btn btn-warning",
@@ -346,6 +340,7 @@ shinyApp(
                 }
             })
         }, ignoreNULL = TRUE, ignoreInit = TRUE)
+
 
     } # Closes the server() call
 )
