@@ -1,8 +1,10 @@
-# [**Human ID Converter**](https://travis-m-blimkie.shinyapps.io/HumanIDConverter/)
+# **Human ID Converter**
 Simple Shiny app that uses Ensembl's
 [BioMart](http://ensemblgenomes.org/info/access/biomart) data to convert
 provided IDs to different types. Currently supports the following ID types:
-Ensembl, HGNC, Entrez, and UniProt.
+Ensembl, HGNC, Entrez, and UniProt.  
+
+Click [here](https://travis-m-blimkie.shinyapps.io/HumanIDConverter/) to check it out!
 
 ## Versioning
 This package makes use of [SemVer](https://semver.org/) for versioning.
