@@ -54,12 +54,12 @@ shinyApp(
                     tags$h3("Hello!"),
 
                     tags$p(HTML(
-                        "Welcome to <b>Human ID Converter</b>, an app designed to ",
-                        "facilitate mapping between different human gene ",
-                        "identifiers. It functions by searching a table ",
-                        "with your input genes and returning any matches. ",
-                        "Each input can contain a mix of any of the supported ID ",
-                        "types: HGNC, Ensembl, Entrez, and UniProt."
+                        "Welcome to <b>Human ID Converter</b>, an app ",
+                        "designed to facilitate mapping between different ",
+                        "human gene identifiers. It functions by searching a ",
+                        "table with your input genes and returning any ",
+                        "matches. Each input can contain a mix of any of the ",
+                        "supported ID types: HGNC, Ensembl, Entrez, and UniProt."
                     )),
 
                     tags$p(
@@ -69,7 +69,8 @@ shinyApp(
                             href = "http://ensemblgenomes.org/info/access/biomart",
                             .noWS = c("before", "after")
                         ),
-                        ". If you run into any trouble, please open an issue at the ",
+                        ". If you run into any trouble, please open an issue ",
+                        "at the ",
                         tags$a(
                             "Github page",
                             href = "https://github.com/travis-m-blimkie/HumanIDConverter",
@@ -80,8 +81,8 @@ shinyApp(
 
                     tags$p(
                         "To get started, paste your genes into the field ",
-                        "below (one per line), and click the 'Search' button to ",
-                        "see your results."
+                        "below (one per line), and click the 'Search' button ",
+                        "to see your results."
                     ),
 
                     tags$br(),
@@ -94,7 +95,8 @@ shinyApp(
                         height  = 175
                     ),
 
-                    # Link to load example data, primarily to making testing easier
+                    # Link to load example data, primarily to making testing
+                    # easier
                     actionLink(
                         inputId = "tryExample",
                         label   = "Load Example Data",
@@ -102,7 +104,8 @@ shinyApp(
 
                     ),
 
-                    # Search button, which is a trigger for lots of outputs/buttons
+                    # Search button, which is a trigger for lots of
+                    # outputs/buttons
                     actionButton(
                         class = "btn-primary",
                         style = "float: right; padding-bottom: 10px",
