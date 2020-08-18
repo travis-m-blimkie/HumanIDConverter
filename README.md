@@ -21,3 +21,5 @@ This project is written under the MIT license, available
 ## Acknowledgements
 Thanks to everyone in the lab who has used these functions and provided
 ideas/feedback!
+
+![](www/app_screenshot.svg)
