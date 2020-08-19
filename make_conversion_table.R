@@ -25,6 +25,6 @@ biomart_table <- biomart_table %>%
 saveRDS(
   biomart_table,
   paste0(
-    "data/shiny_biomart_table_", today, ".Rds"
+    "app_data/shiny_biomart_table_", today, ".Rds"
   )
 )
