@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 
 # Make sure there is only one data file present, otherwise this will not work!
 shiny_biomart_table <- readRDS(list.files(
-    path = "data/",
+    path = "app_data/",
     pattern = "^shiny_biomart_table_[0-9]{8}.Rds$",
     full.names = TRUE
 ))
@@ -204,6 +204,13 @@ shinyApp(
             return(noMatches)
         })
 
+        # Creating a character vector version of non-matching genes for download
+        # purposes
+        nonMatchedGenes_chr <- reactive({
+            req(nonMatchedGenes())
+            nonMatchedGenes() %>% pull(1)
+        })
+
 
 
         # Output tables ---------------------------------------------------
@@ -277,8 +284,8 @@ shinyApp(
         # First for the matched genes
         output$matchedDl <- downloadHandler(
             filename = "matching_genes.csv",
-            content = function(file) {
-                readr::write_csv(matchedGenes(), path = file)
+            content  = function(f) {
+                readr::write_csv(matchedGenes(), path = f)
             }
         )
 
@@ -293,7 +300,7 @@ shinyApp(
                             "We successfully matched some of your input ",
                             "genes. Check the table on the right to see the ",
                             "results, and click the button below to download ",
-                            "the result."
+                            "your results."
                         ),
                         downloadButton(
                             class    = "btn btn-success",
@@ -313,9 +320,9 @@ shinyApp(
 
         # Now for the non-matching genes
         output$nonMatchedDl <- downloadHandler(
-            filename = "non_matching_genes.csv",
-            content = function(file) {
-                readr::write_csv(nonMatchedGenes(), path = file)
+            filename = "non_matching_genes.txt",
+            content  = function(f) {
+                readr::write_lines(nonMatchedGenes_chr(), path = f)
             }
         )
 
