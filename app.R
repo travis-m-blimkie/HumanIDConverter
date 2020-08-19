@@ -9,8 +9,8 @@ suppressPackageStartupMessages({
 
 # Make sure there is only one data file present, otherwise this will not work!
 shiny_biomart_table <- readRDS(list.files(
-    path = "app_data/",
-    pattern = "^shiny_biomart_table_[0-9]{8}.Rds$",
+    path       = "app_data/",
+    pattern    = "^shiny_biomart_table_[0-9]{8}.Rds$",
     full.names = TRUE
 ))
 
