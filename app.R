@@ -19,7 +19,7 @@ example_data <- read_lines("example_data/shiny_app_test_data.txt")
 
 
 
-# First the UI section ------------------------------------------------
+# First define the UI section ---------------------------------------------
 
 ui <- fluidPage(
 
@@ -118,9 +118,9 @@ ui <- fluidPage(
                 # Download button and some text for non-matching genes
                 uiOutput("nonMatchedBtn")
 
-            ), # Closes side div/well
+            ) # Closes the well/form
 
-        ),
+        ), # Closes sidebar div/well
 
         mainPanel = tags$div(
 
@@ -134,23 +134,25 @@ ui <- fluidPage(
             # Output table of non-matching genes
             uiOutput("nonMatchedPanel")
 
-        ) # Closes main div
+        ) # Closes mainPanel() div
 
-    ) # Closes sidebarLayout()
+    ) # Closes the sidebarLayout()
 
-) # Closes the ui() call
-
-
+) # Closes the fluidPage() UI call
 
 
 
-# Now the server section ----------------------------------------------
+
+
+# Now the server section --------------------------------------------------
 
 server <- function(input, output) {
 
     inputGenes <- reactiveVal()
 
-    # Load in example data when linked clicked
+    # Load in example data when linked clicked, and provide a notification. Note
+    # the "message" notification type has been modified; see "www/user.css" for
+    # details.
     observeEvent(input$tryExample, {
         inputGenes(example_data)
 
@@ -160,9 +162,9 @@ server <- function(input, output) {
                 "Example data successfully loaded! Click the Search ",
                 "button to continue."
             ),
-            duration = 5,
+            duration    = 5,
             closeButton = TRUE,
-            type     = "message"
+            type        = "message"
         )
     })
 
@@ -176,7 +178,7 @@ server <- function(input, output) {
     }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 
-    # Now look for the user's genes in our table
+    # Now look for the user's genes in the biomart table
     matchedGenes <- reactive({
         req(inputGenes())
 
@@ -191,9 +193,8 @@ server <- function(input, output) {
         req(matchedGenes())
 
         myMatches <- unlist(matchedGenes()) %>% as.character()
-        noMatches <- tibble(
-            "Input Genes" = setdiff(inputGenes(), myMatches)
-        ) %>%
+        noMatches <-
+            tibble("Input Genes" = setdiff(inputGenes(), myMatches)) %>%
             arrange(1)
 
         return(noMatches)
@@ -208,7 +209,7 @@ server <- function(input, output) {
 
 
 
-    # Output tables ---------------------------------------------------
+    # Output tables -------------------------------------------------------
 
     # First for the matching genes
     output$matchedTable <- DT::renderDataTable({
@@ -274,7 +275,7 @@ server <- function(input, output) {
 
 
 
-    # Download buttons ------------------------------------------------
+    # Download buttons ----------------------------------------------------
 
     # First for the matched genes
     output$matchedDl <- downloadHandler(
@@ -346,9 +347,7 @@ server <- function(input, output) {
         })
     }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
-
 } # Closes the server() call
-
 
 
 
