@@ -37,6 +37,6 @@ h3 {
 
 /* Customizing the notification */
 .shiny-notification-message {
-  color: white;
   background-color: #003249;
+  color: white;
 }

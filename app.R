@@ -206,16 +206,16 @@ server <- function(input, output) {
     # Output tables -------------------------------------------------------
 
     # First for the matching genes
-    output$matchedTable <- DT::renderDataTable({
-        isolate(matchedGenes())
-    },
-    rownames = FALSE,
-    options = list(
-        scrollX = "100%",
-        scrollY = "250px",
-        scrollCollapse = TRUE,
-        paging  = FALSE
-    ))
+    output$matchedTable <- DT::renderDataTable(
+        isolate(matchedGenes()),
+        rownames = FALSE,
+        options = list(
+            scrollX = "100%",
+            scrollY = "250px",
+            scrollCollapse = TRUE,
+            paging  = FALSE
+        )
+    )
 
     observeEvent(input$search, {
         output$matchedPanel <- renderUI({
@@ -236,16 +236,16 @@ server <- function(input, output) {
 
 
     # Now for non-matching genes
-    output$nonMatchedTable <- DT::renderDataTable({
-        isolate(nonMatchedGenes())
-    },
-    rownames = FALSE,
-    options = list(
-        scrollX = "100%",
-        scrollY = "250px",
-        scrollCollapse = TRUE,
-        paging  = FALSE
-    ))
+    output$nonMatchedTable <- DT::renderDataTable(
+        isolate(nonMatchedGenes()),
+        rownames = FALSE,
+        options = list(
+            scrollX = "100%",
+            scrollY = "250px",
+            scrollCollapse = TRUE,
+            paging  = FALSE
+        )
+    )
 
     observeEvent(input$search, {
         output$nonMatchedPanel <- renderUI({
