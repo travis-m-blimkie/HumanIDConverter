@@ -7,14 +7,8 @@ suppressPackageStartupMessages({
     library(tidyverse)
 })
 
-# Make sure there is only one data file present, otherwise this will not work!
-shiny_biomart_table <- readRDS(list.files(
-    path       = "app_data/",
-    pattern    = "^shiny_biomart_table_[0-9]{8}.Rds$",
-    full.names = TRUE
-))
-
-example_data <- read_lines("example_data/shiny_app_test_data.txt")
+biomart_table <- readRDS("app_data/biomart_table.Rds")
+example_data  <- read_lines("example_data/shiny_app_test_data.txt")
 
 
 
@@ -182,7 +176,7 @@ server <- function(input, output) {
     matchedGenes <- reactive({
         req(inputGenes())
 
-        shiny_biomart_table %>%
+        biomart_table %>%
             filter_all(., any_vars(. %in% inputGenes())) %>%
             distinct(HGNC, .keep_all = TRUE) %>%
             arrange(HGNC)
