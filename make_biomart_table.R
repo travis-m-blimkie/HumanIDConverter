@@ -2,7 +2,7 @@
 ### Script to generate conversion table used in the app
 
 
-# Load the biomaRt package
+# Load the required packages
 suppressPackageStartupMessages({
   library(biomaRt)
   library(tidyverse)
@@ -23,8 +23,8 @@ biomart_table <- getBM(
 biomart_table[biomart_table == ""] <- NA
 
 # Rename columns and sort. This last step ensures that NA's in any column are at
-# the bottom for a given gene, so when we call distinct() in the app proper,
-# we're more likely to get non-NA entries in the final table.
+# the bottom for a given gene, so when we call distinct() after matching the
+# user's genes, we're should  get non-NA entries in the final table.
 biomart_table <- biomart_table %>%
   select(
     "HGNC"    = hgnc_symbol,
