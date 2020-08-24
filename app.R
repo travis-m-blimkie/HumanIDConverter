@@ -19,13 +19,13 @@ ui <- fluidPage(
 
     # Link to some custom CSS
     tags$head(tags$link(
-        rel = "stylesheet", type = "text/css", href = "user.css"
+        rel = "stylesheet", type = "text/css", href = "css/user.css"
     )),
 
     title = "Human ID Converter",
 
     # Select the Bootswatch3 "Readable": https://bootswatch.com/3/readable/
-    theme = "readablebootstrap.css",
+    theme = "css/readablebootstrap.css",
 
     # Header/title of the app, which has some custom tweaks applied in
     # "user.css"
