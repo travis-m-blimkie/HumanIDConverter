@@ -1,6 +1,6 @@
 Package: HumanIDConverter
 Title: Convert Human Genes Between ID Types
-Version: 0.5.12
+Version: 0.5.14
 Authors@R: 
     person(given = "Travis",
            family = "Blimkie",
