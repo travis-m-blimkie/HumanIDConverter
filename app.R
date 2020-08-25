@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 
 biomart_table <- readRDS("app_data/biomart_table.Rds")
 example_data  <- read_lines("example_data/shiny_app_test_data.txt")
-
+branch <- git2r::repository_head() %>% unclass() %>% purrr::pluck("name")
 
 
 
@@ -58,8 +58,9 @@ ui <- fluidPage(
                         href = "http://ensemblgenomes.org/info/access/biomart",
                         .noWS = c("before", "after")
                     ),
-                    ". If you run into any trouble, please open an issue ",
-                    "at the ",
+                    ". The app in its current state is based on the '", branch,
+                    "' Github branch. If you run into any trouble, please ",
+                    "open an issue at the ",
                     tags$a(
                         "Github page",
                         href = "https://github.com/travis-m-blimkie/HumanIDConverter",
@@ -78,10 +79,10 @@ ui <- fluidPage(
 
                 # Field for user to input their genes
                 textAreaInput(
-                    inputId = "pastedInput",
-                    label   = NULL,
+                    inputId     = "pastedInput",
+                    label       = NULL,
                     placeholder = "Your genes here...",
-                    height  = 175
+                    height      = 155
                 ),
 
                 # Link to load example data, primarily to making testing
@@ -96,8 +97,8 @@ ui <- fluidPage(
                 # Search button, which is a trigger for lots of
                 # outputs/buttons
                 actionButton(
-                    class = "btn-primary",
-                    style = "float: right; padding-bottom: 10px",
+                    class   = "btn-primary",
+                    style   = "float: right; padding-bottom: 10px",
                     inputId = "search",
                     label   = "Search",
                     icon    = icon("search")
@@ -152,18 +153,18 @@ server <- function(input, output) {
 
         showNotification(
             id = "exampleSuccess",
+            duration = 5,
+            closeButton = TRUE,
+            type = "message",
             ui = paste0(
                 "Example data successfully loaded! Click the Search ",
                 "button to continue."
-            ),
-            duration    = 5,
-            closeButton = TRUE,
-            type        = "message"
+            )
         )
     })
 
 
-    # Take the user's input and clean it up
+    # Take the user's input and clean it up, matching one space or newline
     observeEvent(input$pastedInput, {
         input$pastedInput %>%
             str_split(., pattern = " |\n") %>%
@@ -172,7 +173,7 @@ server <- function(input, output) {
     }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 
-    # Now look for the user's genes in the biomart table
+    # Now look for the user's genes in the biomaRt table
     matchedGenes <- reactive({
         req(inputGenes())
 
@@ -251,9 +252,7 @@ server <- function(input, output) {
         output$nonMatchedPanel <- renderUI({
             isolate(nonMatchedGenes())
 
-            if (nrow(nonMatchedGenes()) == 0) {
-                return(NULL)
-            } else {
+            if (nrow(nonMatchedGenes()) != 0) {
                 return(tagList(
                     tags$hr(),
                     tags$br(),
@@ -261,6 +260,9 @@ server <- function(input, output) {
                     DT::dataTableOutput("nonMatchedTable"),
                     tags$br()
                 ))
+
+            } else {
+                return(NULL)
             }
         })
     }, ignoreNULL = TRUE, ignoreInit = TRUE)
@@ -290,7 +292,7 @@ server <- function(input, output) {
                         "We successfully matched some of your input ",
                         "genes. Check the table on the right to see the ",
                         "results, and click the button below to download ",
-                        "your results."
+                        "the table."
                     ),
                     downloadButton(
                         class    = "btn btn-success",
