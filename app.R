@@ -1,16 +1,15 @@
 
 # Load libraries and data -------------------------------------------------
 
-suppressPackageStartupMessages({
-    library(shiny)
-    library(DT)
-    library(tidyverse)
-})
+library(shiny)
+library(DT)
+library(tidyverse)
+
+# library(BiocManager)
+# options(repos = BiocManager::repositories())
 
 biomart_table <- readRDS("app_data/biomart_table.Rds")
 example_data  <- read_lines("example_data/shiny_app_test_data.txt")
-branch <- git2r::repository_head() %>% unclass() %>% purrr::pluck("name")
-
 
 
 # First define the UI section ---------------------------------------------
@@ -58,8 +57,7 @@ ui <- fluidPage(
                         href = "http://ensemblgenomes.org/info/access/biomart",
                         .noWS = c("before", "after")
                     ),
-                    ". The app in its current state is based on the '", branch,
-                    "' Github branch. If you run into any trouble, please ",
+                    ". If you run into any trouble, please ",
                     "open an issue at the ",
                     tags$a(
                         "Github page",
