@@ -1,0 +1,43 @@
+
+/* Link to "coolors.co" page to help pick additional colours: */
+/* https://coolors.co/318837-4582ec-5bc0de-f0ad4e-372554 */
+
+/* This code is needed to make the header/title stretch the whole width of */
+/* the page, without excess padding on the top or the sides of the screen. */
+.container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+h1 {
+  background-color: #003249;
+  color: white;
+  padding: 10px;
+  padding-left: 15px;
+  margin-top: 0;
+}
+
+/* h3's are used above results table, so we don't need the extra margin */
+h3 {
+  margin-top: 0;
+}
+
+/* Some of the above changes to make the header span the page width require */
+/* extra padding along the outside */
+.col-sm-4 {
+  padding-left: 30px;
+}
+
+
+/* This invisible element (height: 0) caused a horizontal scrollbar. Fixed by */
+/* setting the width to the screen size. */
+.row {
+  width: 100%;
+}
+
+/* Customizing the notification */
+.shiny-notification-message {
+  background-color: #003249;
+  color: white;
+  opacity: 1;
+}
