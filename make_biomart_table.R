@@ -2,7 +2,7 @@
 ### Script to generate conversion table used in the app
 
 
-# Load the required packages
+# Load the two required packages
 suppressPackageStartupMessages({
   library(biomaRt)
   library(tidyverse)

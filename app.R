@@ -23,11 +23,11 @@ ui <- fluidPage(
 
     title = "Human ID Converter",
 
-    # Select the Bootswatch3 "Readable": https://bootswatch.com/3/readable/
+    # Select the Bootswatch3 theme "Readable": https://bootswatch.com/3/readable
     theme = "css/readablebootstrap.css",
 
     # Header/title of the app, which has some custom tweaks applied in
-    # "user.css"
+    # "www/css/user.css"
     tags$h1("Human ID Converter"),
 
     sidebarLayout(
@@ -144,7 +144,7 @@ server <- function(input, output) {
     inputGenes <- reactiveVal()
 
     # Load in example data when linked clicked, and provide a notification. Note
-    # the "message" notification type has been modified; see "www/user.css" for
+    # the "message" notification type has been modified; see "www/css/user.css" for
     # details.
     observeEvent(input$tryExample, {
         inputGenes(example_data)
@@ -194,7 +194,8 @@ server <- function(input, output) {
     })
 
     # Creating a character vector version of non-matching genes for download
-    # purposes
+    # purposes. Note we still want the above tibble version for displaying to
+    # the user.
     nonMatchedGenes_chr <- reactive({
         req(nonMatchedGenes())
         nonMatchedGenes() %>% pull(1)

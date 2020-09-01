@@ -23,19 +23,19 @@ h3 {
 }
 
 /* Some of the above changes to make the header span the page width require */
-/* extra padding along the outside */
+/* extra padding along the outside of the side panel */
 .col-sm-4 {
   padding-left: 30px;
 }
 
 
 /* This invisible element (height: 0) caused a horizontal scrollbar. Fixed by */
-/* setting the width to the screen size. */
+/* setting its width to the screen size */
 .row {
   width: 100%;
 }
 
-/* Customizing the notification */
+/* Customizing the notification for loading example/test data */
 .shiny-notification-message {
   background-color: #003249;
   color: white;
