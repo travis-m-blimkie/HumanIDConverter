@@ -144,8 +144,8 @@ server <- function(input, output) {
     inputGenes <- reactiveVal()
 
     # Load in example data when linked clicked, and provide a notification. Note
-    # the "message" notification type has been modified; see "www/css/user.css" for
-    # details.
+    # the "message" notification type has been modified; see "www/css/user.css"
+    # for details.
     observeEvent(input$tryExample, {
         inputGenes(example_data)
 
@@ -162,7 +162,8 @@ server <- function(input, output) {
     })
 
 
-    # Take the user's input and clean it up, matching one space or newline
+    # Take the user's input and clean it up, matching a space or new line
+    # character
     observeEvent(input$pastedInput, {
         input$pastedInput %>%
             str_split(., pattern = " |\n") %>%
@@ -181,6 +182,39 @@ server <- function(input, output) {
             arrange(HGNC)
     })
 
+
+    # Create an alternate table to display to the user, in which all the genes
+    # are links to the respective info page
+    hyperlinkTable <- reactive({
+        req(matchedGenes)
+
+        matchedGenes() %>%
+            rowwise() %>%
+            mutate(
+                HGNC = paste0(
+                    "<a target='_blank' href='",
+                    "https://www.genenames.org/tools/search/#!/all?query=",
+                    HGNC, "'>", HGNC, "</a>"
+                ),
+                Ensembl = paste0(
+                    "<a target='_blank' href='",
+                    "http://www.ensembl.org/id/",
+                    Ensembl, "'>", Ensembl, "</a>"
+                ),
+                Entrez = paste0(
+                    "<a target='_blank' href='",
+                    "https://www.ncbi.nlm.nih.gov/gene/",
+                    Entrez, "'>", Entrez, "</a>"
+                ),
+                UniProt = paste0(
+                    "<a target='_blank' href='",
+                    "https://www.uniprot.org/uniprot/",
+                    UniProt, "'>", UniProt, "</a>"
+                )
+            ) %>%
+            ungroup()
+    })
+
     # Get the genes that didn't have matches
     nonMatchedGenes <- reactive({
         req(matchedGenes())
@@ -188,7 +222,7 @@ server <- function(input, output) {
         myMatches <- unlist(matchedGenes()) %>% as.character()
         noMatches <-
             tibble("Input Genes" = setdiff(inputGenes(), myMatches)) %>%
-            arrange(1)
+            arrange(`Input Genes`)
 
         return(noMatches)
     })
@@ -198,7 +232,7 @@ server <- function(input, output) {
     # the user.
     nonMatchedGenes_chr <- reactive({
         req(nonMatchedGenes())
-        nonMatchedGenes() %>% pull(1)
+        nonMatchedGenes() %>% pull(`Input Genes`)
     })
 
 
@@ -207,9 +241,11 @@ server <- function(input, output) {
 
     # First for the matching genes
     output$matchedTable <- DT::renderDataTable(
-        isolate(matchedGenes()),
+        isolate(hyperlinkTable()),
         rownames = FALSE,
-        options = list(
+        escape   = FALSE,
+        selection = "none",
+        options  = list(
             scrollX = "100%",
             scrollY = "250px",
             scrollCollapse = TRUE,
@@ -239,6 +275,7 @@ server <- function(input, output) {
     output$nonMatchedTable <- DT::renderDataTable(
         isolate(nonMatchedGenes()),
         rownames = FALSE,
+        selection = "none",
         options = list(
             scrollX = "100%",
             scrollY = "250px",
