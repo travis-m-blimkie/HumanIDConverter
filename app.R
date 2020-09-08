@@ -98,7 +98,7 @@ ui <- fluidPage(
                     class   = "btn-primary",
                     style   = "float: right; padding-bottom: 10px",
                     inputId = "search",
-                    label   = "Search",
+                    label   = "Search Genes",
                     icon    = icon("search")
                 ),
 
@@ -155,7 +155,7 @@ server <- function(input, output) {
             closeButton = TRUE,
             type = "message",
             ui = paste0(
-                "Example data successfully loaded! Click the Search ",
+                "Example data successfully loaded! Click the 'Search Genes' ",
                 "button to continue."
             )
         )
