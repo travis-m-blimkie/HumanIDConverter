@@ -8,8 +8,8 @@ library(tidyverse)
 # library(BiocManager)
 # options(repos = BiocManager::repositories())
 
-biomart_table <- readRDS("app_data/biomart_table.Rds")
-example_data  <- read_lines("example_data/shiny_app_test_data.txt")
+biomart_table <- readRDS("data/biomart_table.Rds")
+example_data  <- read_lines("data/shiny_app_test_data.txt")
 
 
 # First define the UI section ---------------------------------------------
@@ -163,7 +163,7 @@ server <- function(input, output) {
 
 
     # Take the user's input and clean it up, matching a space or new line
-    # character
+    # character to separate out the genes into a character vector
     observeEvent(input$pastedInput, {
         input$pastedInput %>%
             str_split(., pattern = " |\n") %>%
@@ -172,7 +172,10 @@ server <- function(input, output) {
     }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 
-    # Now look for the user's genes in the biomaRt table
+    # Now look for the user's genes in the biomaRt table. By using
+    # `filter_all()` and `any_vars()` we can search every column of the
+    # biomaRt table for each input gene, meaning the user can input a mixture
+    # of different ID types and we don't need specific code for each.
     matchedGenes <- reactive({
         req(inputGenes())
 
@@ -184,7 +187,9 @@ server <- function(input, output) {
 
 
     # Create an alternate table to display to the user, in which all the genes
-    # are links to the respective info page
+    # are links to the respective info page for that gene. Note for HGNC we
+    # can't link directly to the gene's page (the URL uses some ID instead of
+    # the gene name), so we just link to the search result page for the gene.
     hyperlinkTable <- reactive({
         req(matchedGenes)
 

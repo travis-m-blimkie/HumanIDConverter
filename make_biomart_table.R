@@ -46,4 +46,4 @@ biomart_table <- biomart_table %>%
 
 
 # Save the output for use in the app
-saveRDS(biomart_table, "app_data/biomart_table.Rds")
+saveRDS(biomart_table, "data/biomart_table.Rds")
