@@ -69,8 +69,8 @@ ui <- fluidPage(
 
                 tags$p(
                     "To get started, paste your genes into the field ",
-                    "below (one per line), and click the 'Search' button ",
-                    "to see your results."
+                    "below (one per line), and click the 'Search Genes' ",
+                    "button to see your results."
                 ),
 
                 tags$br(),
@@ -188,8 +188,9 @@ server <- function(input, output) {
 
     # Create an alternate table to display to the user, in which all the genes
     # are links to the respective info page for that gene. Note for HGNC we
-    # can't link directly to the gene's page (the URL uses some ID instead of
-    # the gene name), so we just link to the search result page for the gene.
+    # can't link directly to the gene's page (the URL uses some arbitrary ID
+    # instead of the gene name), so we just link to the search result page for
+    # the given gene.
     hyperlinkTable <- reactive({
         req(matchedGenes)
 
@@ -220,7 +221,7 @@ server <- function(input, output) {
             ungroup()
     })
 
-    # Get the genes that didn't have matches
+    # Get the genes that didn't have matches to inform the user
     nonMatchedGenes <- reactive({
         req(matchedGenes())
 
@@ -232,9 +233,9 @@ server <- function(input, output) {
         return(noMatches)
     })
 
-    # Creating a character vector version of non-matching genes for download
-    # purposes. Note we still want the above tibble version for displaying to
-    # the user.
+    # Create a character vector version of non-matching genes for download
+    # purposes (we still want the above tibble version for displaying to
+    # the user).
     nonMatchedGenes_chr <- reactive({
         req(nonMatchedGenes())
         nonMatchedGenes() %>% pull(`Input Genes`)

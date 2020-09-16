@@ -9,6 +9,7 @@
   padding-right: 0;
 }
 
+/* Custom header bar at the top of the page, just a modified h1 */
 h1 {
   background-color: #003249;
   color: white;
