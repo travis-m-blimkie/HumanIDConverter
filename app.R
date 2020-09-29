@@ -5,6 +5,8 @@ library(shiny)
 library(DT)
 library(tidyverse)
 
+# These two lines are needed if publishing the app the RStudio's shiny service,
+# so the packages from BioConductor can be found and installed
 # library(BiocManager)
 # options(repos = BiocManager::repositories())
 
@@ -16,12 +18,12 @@ example_data  <- read_lines("data/shiny_app_test_data.txt")
 
 ui <- fluidPage(
 
-    # Link to some custom CSS
+    title = "Human ID Converter",
+
+    # Link to some custom CSS tweaks
     tags$head(tags$link(
         rel = "stylesheet", type = "text/css", href = "css/user.css"
     )),
-
-    title = "Human ID Converter",
 
     # Select the Bootswatch3 theme "Readable": https://bootswatch.com/3/readable
     theme = "css/readablebootstrap.css",
@@ -187,10 +189,10 @@ server <- function(input, output) {
 
 
     # Create an alternate table to display to the user, in which all the genes
-    # are links to the respective info page for that gene. Note for HGNC we
-    # can't link directly to the gene's page (the URL uses some arbitrary ID
-    # instead of the gene name), so we just link to the search result page for
-    # the given gene.
+    # are links to the respective info page for that gene.
+    # Note for HGNC we can't link directly to the gene's page (the URL uses some
+    # arbitrary ID instead of the gene name), so we just link to the search
+    # result page for the given gene.
     hyperlinkTable <- reactive({
         req(matchedGenes)
 
@@ -234,8 +236,8 @@ server <- function(input, output) {
     })
 
     # Create a character vector version of non-matching genes for download
-    # purposes (we still want the above tibble version for displaying to
-    # the user).
+    # purposes (we still want the above tibble version with links for displaying
+    # to the user).
     nonMatchedGenes_chr <- reactive({
         req(nonMatchedGenes())
         nonMatchedGenes() %>% pull(`Input Genes`)
@@ -248,10 +250,10 @@ server <- function(input, output) {
     # First for the matching genes
     output$matchedTable <- DT::renderDataTable(
         isolate(hyperlinkTable()),
-        rownames = FALSE,
-        escape   = FALSE,
+        rownames  = FALSE,
+        escape    = FALSE,
         selection = "none",
-        options  = list(
+        options   = list(
             scrollX = "100%",
             scrollY = "250px",
             scrollCollapse = TRUE,
@@ -280,9 +282,9 @@ server <- function(input, output) {
     # Now for non-matching genes
     output$nonMatchedTable <- DT::renderDataTable(
         isolate(nonMatchedGenes()),
-        rownames = FALSE,
+        rownames  = FALSE,
         selection = "none",
-        options = list(
+        options   = list(
             scrollX = "100%",
             scrollY = "250px",
             scrollCollapse = TRUE,
