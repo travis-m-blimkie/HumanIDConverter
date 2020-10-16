@@ -49,7 +49,7 @@ ui <- fluidPage(
                     "human gene identifiers. It functions by searching a ",
                     "table with your input genes and returning any ",
                     "matches. Each input can contain a mix of any of the ",
-                    "supported ID types: HGNC, Ensembl, Entrez, and UniProt."
+                    "supported ID types: HGNC, Ensembl, & Entrez."
                 )),
 
                 tags$p(
@@ -178,7 +178,7 @@ server <- function(input, output) {
     # `filter_all()` and `any_vars()` we can search every column of the
     # biomaRt table for each input gene, meaning the user can input a mixture
     # of different ID types and we don't need specific code for each.
-    matchedGenes <- reactive({
+    hyperlinkConstructor <- reactive({
         req(inputGenes())
 
         biomart_table %>%
@@ -188,21 +188,28 @@ server <- function(input, output) {
     })
 
 
+    matchedGenes <- reactive({
+        req(hyperlinkConstructor())
+        hyperlinkConstructor() %>% select(-HGNC_ID)
+    })
+
+
+
     # Create an alternate table to display to the user, in which all the genes
     # are links to the respective info page for that gene.
-    # Note for HGNC we can't link directly to the gene's page (the URL uses some
-    # arbitrary ID instead of the gene name), so we just link to the search
-    # result page for the given gene.
+    # Note for HGNC we use the corresponding HGNC ID to link to the proper page.
+    # This column gets dropped at the end, since it's just used for constructing
+    # the link.
     hyperlinkTable <- reactive({
-        req(matchedGenes)
+        req(hyperlinkConstructor())
 
-        matchedGenes() %>%
+        hyperlinkConstructor() %>%
             rowwise() %>%
             mutate(
                 HGNC = paste0(
                     "<a target='_blank' href='",
-                    "https://www.genenames.org/tools/search/#!/all?query=",
-                    HGNC, "'>", HGNC, "</a>"
+                    "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:",
+                    HGNC_ID, "'>", HGNC, "</a>"
                 ),
                 Ensembl = paste0(
                     "<a target='_blank' href='",
@@ -220,7 +227,8 @@ server <- function(input, output) {
                     UniProt, "'>", UniProt, "</a>"
                 )
             ) %>%
-            ungroup()
+            ungroup() %>%
+            select(-HGNC_ID)
     })
 
     # Get the genes that didn't have matches to inform the user
@@ -321,7 +329,7 @@ server <- function(input, output) {
     output$matchedDl <- downloadHandler(
         filename = "matching_genes.csv",
         content  = function(f) {
-            readr::write_csv(matchedGenes(), path = f)
+            readr::write_csv(matchedGenes(), file = f)
         }
     )
 
