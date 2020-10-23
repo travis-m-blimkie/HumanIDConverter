@@ -13,6 +13,7 @@ library(tidyverse)
 biomart_table <- readRDS("data/biomart_table.Rds")
 example_data  <- read_lines("data/shiny_app_test_data.txt")
 
+message("\n\nInitialized app")
 
 # First define the UI section ---------------------------------------------
 
@@ -141,14 +142,20 @@ ui <- fluidPage(
 
 # Now the server section --------------------------------------------------
 
+
 server <- function(input, output) {
 
+    observeEvent(input$search, message("Clicked 'Search Genes' button"))
+
     inputGenes <- reactiveVal()
+
 
     # Load in example data when linked clicked, and provide a notification. Note
     # the "message" notification type has been modified; see "www/css/user.css"
     # for details.
     observeEvent(input$tryExample, {
+        message("Loaded example data")
+
         inputGenes(example_data)
 
         showNotification(
@@ -167,6 +174,8 @@ server <- function(input, output) {
     # Take the user's input and clean it up, matching a space or new line
     # character to separate out the genes into a character vector
     observeEvent(input$pastedInput, {
+        message("Read pasted input")
+
         input$pastedInput %>%
             str_split(., pattern = " |\n") %>%
             unlist() %>%
@@ -179,6 +188,8 @@ server <- function(input, output) {
     # biomaRt table for each input gene, meaning the user can input a mixture
     # of different ID types and we don't need specific code for each.
     hyperlinkConstructor <- reactive({
+        message("Created 'hyperlinkConstructor'")
+
         req(inputGenes())
 
         biomart_table %>%
@@ -201,6 +212,8 @@ server <- function(input, output) {
     # This column gets dropped at the end, since it's just used for constructing
     # the link.
     hyperlinkTable <- reactive({
+        message("Created 'hyperlinkTable'")
+
         req(hyperlinkConstructor())
 
         hyperlinkConstructor() %>%
@@ -233,6 +246,8 @@ server <- function(input, output) {
 
     # Get the genes that didn't have matches to inform the user
     nonMatchedGenes <- reactive({
+        message("Created 'nonMatchedGenes'")
+
         req(matchedGenes())
 
         myMatches <- unlist(matchedGenes()) %>% as.character()
@@ -271,6 +286,10 @@ server <- function(input, output) {
 
     observeEvent(input$search, {
         output$matchedPanel <- renderUI({
+            message("Rendering 'matchedPanel'")
+
+            isolate(matchedGenes())
+
             if (nrow(matchedGenes()) != 0) {
                 return(
                     tagList(
@@ -302,6 +321,8 @@ server <- function(input, output) {
 
     observeEvent(input$search, {
         output$nonMatchedPanel <- renderUI({
+            message("Rendering 'nonmatchedPanel'")
+
             isolate(nonMatchedGenes())
 
             if (nrow(nonMatchedGenes()) != 0) {
