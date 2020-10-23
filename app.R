@@ -13,7 +13,8 @@ library(tidyverse)
 biomart_table <- readRDS("data/biomart_table.Rds")
 example_data  <- read_lines("data/shiny_app_test_data.txt")
 
-message("\n\nInitialized app")
+
+
 
 # First define the UI section ---------------------------------------------
 
@@ -145,8 +146,6 @@ ui <- fluidPage(
 
 server <- function(input, output) {
 
-    observeEvent(input$search, message("Clicked 'Search Genes' button"))
-
     inputGenes <- reactiveVal()
 
 
@@ -154,10 +153,6 @@ server <- function(input, output) {
     # the "message" notification type has been modified; see "www/css/user.css"
     # for details.
     observeEvent(input$tryExample, {
-        message("Loaded example data")
-
-        inputGenes(example_data)
-
         showNotification(
             id = "exampleSuccess",
             duration = 5,
@@ -170,12 +165,17 @@ server <- function(input, output) {
         )
     })
 
+    observeEvent({
+        input$tryExample
+        input$search
+    }, {
+        inputGenes(example_data)
+    })
+
 
     # Take the user's input and clean it up, matching a space or new line
     # character to separate out the genes into a character vector
-    observeEvent(input$pastedInput, {
-        message("Read pasted input")
-
+    observeEvent(input$search, {
         input$pastedInput %>%
             str_split(., pattern = " |\n") %>%
             unlist() %>%
@@ -188,8 +188,6 @@ server <- function(input, output) {
     # biomaRt table for each input gene, meaning the user can input a mixture
     # of different ID types and we don't need specific code for each.
     hyperlinkConstructor <- reactive({
-        message("Created 'hyperlinkConstructor'")
-
         req(inputGenes())
 
         biomart_table %>%
@@ -212,8 +210,6 @@ server <- function(input, output) {
     # This column gets dropped at the end, since it's just used for constructing
     # the link.
     hyperlinkTable <- reactive({
-        message("Created 'hyperlinkTable'")
-
         req(hyperlinkConstructor())
 
         hyperlinkConstructor() %>%
@@ -246,8 +242,6 @@ server <- function(input, output) {
 
     # Get the genes that didn't have matches to inform the user
     nonMatchedGenes <- reactive({
-        message("Created 'nonMatchedGenes'")
-
         req(matchedGenes())
 
         myMatches <- unlist(matchedGenes()) %>% as.character()
@@ -272,7 +266,7 @@ server <- function(input, output) {
 
     # First for the matching genes
     output$matchedTable <- DT::renderDataTable(
-        isolate(hyperlinkTable()),
+        hyperlinkTable(),
         rownames  = FALSE,
         escape    = FALSE,
         selection = "none",
@@ -284,31 +278,28 @@ server <- function(input, output) {
         )
     )
 
-    observeEvent(input$search, {
-        output$matchedPanel <- renderUI({
-            message("Rendering 'matchedPanel'")
+    output$matchedPanel <- renderUI({
+        req(hyperlinkTable())
 
-            isolate(matchedGenes())
-
-            if (nrow(matchedGenes()) != 0) {
-                return(
-                    tagList(
-                        tags$h3("We found matches for the following genes:"),
-                        DT::dataTableOutput("matchedTable")
-                    )
+        if (nrow(hyperlinkTable()) != 0) {
+            return(
+                tagList(
+                    tags$h3("We found matches for the following genes:"),
+                    DT::dataTableOutput("matchedTable")
                 )
-            } else {
-                return(NULL)
-            }
-        })
-    }, ignoreNULL = TRUE, ignoreInit = TRUE)
+            )
+        } else {
+            return(NULL)
+        }
+    })
+
 
 
 
 
     # Now for non-matching genes
     output$nonMatchedTable <- DT::renderDataTable(
-        isolate(nonMatchedGenes()),
+        nonMatchedGenes(),
         rownames  = FALSE,
         selection = "none",
         options   = list(
@@ -319,26 +310,23 @@ server <- function(input, output) {
         )
     )
 
-    observeEvent(input$search, {
-        output$nonMatchedPanel <- renderUI({
-            message("Rendering 'nonmatchedPanel'")
+    output$nonMatchedPanel <- renderUI({
+        req(nonMatchedGenes())
 
-            isolate(nonMatchedGenes())
+        if (nrow(nonMatchedGenes()) != 0) {
+            return(tagList(
+                tags$hr(),
+                tags$br(),
+                tags$h3("The following genes did not have a match:"),
+                DT::dataTableOutput("nonMatchedTable"),
+                tags$br()
+            ))
 
-            if (nrow(nonMatchedGenes()) != 0) {
-                return(tagList(
-                    tags$hr(),
-                    tags$br(),
-                    tags$h3("The following genes did not have a match:"),
-                    DT::dataTableOutput("nonMatchedTable"),
-                    tags$br()
-                ))
+        } else {
+            return(NULL)
+        }
+    })
 
-            } else {
-                return(NULL)
-            }
-        })
-    }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
 
@@ -387,7 +375,7 @@ server <- function(input, output) {
     output$nonMatchedDl <- downloadHandler(
         filename = "non_matching_genes.txt",
         content  = function(f) {
-            readr::write_lines(nonMatchedGenes_chr(), path = f)
+            readr::write_lines(nonMatchedGenes_chr(), file = f)
         }
     )
 
