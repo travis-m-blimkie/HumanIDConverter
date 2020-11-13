@@ -1,5 +1,4 @@
 
-
 # Minimal version of the app to try and work out how to properly set up reactive
 # values and observations to get desired behaviour.
 

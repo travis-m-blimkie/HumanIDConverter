@@ -42,3 +42,10 @@ h3 {
   color: white;
   opacity: 1;
 }
+
+/* Custom class for inserting the Github logo in the top-right corner */
+#img-id{
+  position: fixed;
+  right: 10px;
+  top: 22px;
+}

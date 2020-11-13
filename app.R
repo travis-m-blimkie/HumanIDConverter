@@ -32,7 +32,18 @@ ui <- fluidPage(
 
     # Header/title of the app, which has some custom tweaks applied in
     # "www/css/user.css"
-    tags$h1("Human ID Converter"),
+    tags$div(
+        tags$h1("Human ID Converter"),
+
+        tags$div(
+            id = "img-id",
+            htmltools::HTML(paste0(
+                "<a href='https://github.com/travis-m-blimkie/HumanIDConverter'> ",
+                "<img src = 'github.svg'> </a>"
+            ))
+        ),
+        style = "width:100%; height:65px; margin-bottom: 11px",
+    ),
 
     sidebarLayout(
 
